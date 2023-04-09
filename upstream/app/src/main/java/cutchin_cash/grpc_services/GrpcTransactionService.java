@@ -42,12 +42,9 @@ public class GrpcTransactionService extends TransactionServiceImplBase {
             sender.response(
                     SendPaymentResponse.newBuilder()
                             .setTransaction(
-                                    TransactionModel.toTransaction(
-                                            transactionService.sendPayment(
-                                                    currentUser,
-                                                    request.getReceivingUserId(),
-                                                    request.getAmount(),
-                                                    request.getDescription())))
+                                    TransactionModel.toTransaction(transactionService.sendPayment(
+                                            currentUser, request.getReceivingUserId(),
+                                            request.getAmount(), request.getDescription())))
                             .build());
         } catch (TransactionException e) {
             sender.error(e);
@@ -71,13 +68,10 @@ public class GrpcTransactionService extends TransactionServiceImplBase {
 
             sender.response(
                     DemandPaymentResponse.newBuilder()
-                            .setTransaction(
-                                    TransactionModel.toTransaction(
-                                            transactionService.demandPayment(
-                                                    currentUser,
-                                                    request.getPayingUserId(),
-                                                    request.getAmount(),
-                                                    request.getDescription())))
+                            .setTransaction(TransactionModel.toTransaction(
+                                    transactionService.demandPayment(
+                                            currentUser, request.getPayingUserId(),
+                                            request.getAmount(), request.getDescription())))
                             .build());
         } catch (TransactionException e) {
             sender.error(e);
@@ -89,8 +83,7 @@ public class GrpcTransactionService extends TransactionServiceImplBase {
     }
 
     @Override
-    public void decisionPayment(
-            DecisionPaymentRequest request,
+    public void decisionPayment(DecisionPaymentRequest request,
             StreamObserver<DecisionPaymentResponse> responseObserver) {
         Sender<DecisionPaymentResponse> sender = new Sender<>(responseObserver);
 
@@ -100,15 +93,12 @@ public class GrpcTransactionService extends TransactionServiceImplBase {
                 throw new StatusException(Status.UNAUTHENTICATED);
             }
 
-            sender.response(
-                    DecisionPaymentResponse.newBuilder()
-                            .setTransaction(
-                                    TransactionModel.toTransaction(
-                                            transactionService.decisionPayment(
-                                                    currentUser,
-                                                    request.getTransactionId(),
-                                                    request.getStatus())))
-                            .build());
+            sender.response(DecisionPaymentResponse.newBuilder()
+                    .setTransaction(TransactionModel.toTransaction(
+                            transactionService.decisionPayment(
+                                    currentUser, request.getTransactionId(),
+                                    request.getStatus())))
+                    .build());
         } catch (TransactionException e) {
             sender.error(e);
             return;
@@ -134,10 +124,9 @@ public class GrpcTransactionService extends TransactionServiceImplBase {
                 transactions.add(TransactionModel.toTransaction(transaction));
             }
 
-            sender.response(
-                    ListTransactionsResponse.newBuilder()
-                            .addAllTransactions(transactions)
-                            .build());
+            sender.response(ListTransactionsResponse.newBuilder()
+                    .addAllTransactions(transactions)
+                    .build());
         } catch (TransactionException e) {
             sender.error(e);
             return;

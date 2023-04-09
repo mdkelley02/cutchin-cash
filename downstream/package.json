@@ -1,0 +1,34 @@
+{
+  "dependencies": {
+    "expo": "^48.0.7",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-native": "0.71.3",
+    "react-native-web": "~0.18.7",
+    "@expo/webpack-config": "^18.0.1",
+    "@grpc/grpc-js": "^1.8.11",
+    "source-map-support": "^0.5.21"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.19.3",
+    "@types/react": "~18.0.24",
+    "@types/react-native": "~0.70.6",
+    "typescript": "^4.6.3",
+    "concurrently": "^7.6.0",
+    "grpc-tools": "^1.12.4",
+    "rimraf": "^4.1.2",
+    "ts-proto": "^1.140.0"
+  },
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "create-component": "node ./scripts/CreateComponent.js",
+    "start-server": "node ./scripts/StartServer.js",
+    "generate-protos": "node ./scripts/GenerateProtos.js"
+  },
+  "version": "1.0.0",
+  "private": true,
+  "name": "cutchin-cash"
+}
