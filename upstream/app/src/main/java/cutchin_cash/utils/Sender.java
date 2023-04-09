@@ -25,4 +25,8 @@ public class Sender<RespT extends GeneratedMessageV3> {
     public void error(Status status) {
         responseObserver.onError(new StatusException(status));
     }
+
+    public void error(TransactionException status) {
+        responseObserver.onError(status);
+    }
 }

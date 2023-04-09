@@ -48,6 +48,6 @@ message ListTransactionsResponse {
 service TransactionService {
     rpc SendPayment(SendPaymentRequest) returns (SendPaymentResponse) {}
     rpc DemandPayment(DemandPaymentRequest) returns (DemandPaymentResponse) {}
-    rpc DecisionPayment(DemandPaymentRequest) returns (DemandPaymentResponse) {}
+    rpc DecisionPayment(DecisionPaymentRequest) returns (DecisionPaymentResponse) {}
     rpc ListTransactions(ListTransactionsRequest) returns (ListTransactionsResponse) {}
 }

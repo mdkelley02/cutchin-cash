@@ -33,12 +33,38 @@ public final class Const {
                         add(AuthServiceGrpc
                                 .getRegisterMethod()
                                 .getFullMethodName());
+                        add(AuthServiceGrpc
+                                .getRefreshMethod()
+                                .getFullMethodName());
                         add("grpc.reflection.v1alpha.ServerReflection/ServerReflectionInfo");
                     }
                 };
     }
 
-    public static class Database {}
+    public static class RedisKeys {
+        // Lookup transaction by transactionId
+        public static String transaction(String transactionId) {
+            return "transactionId:" + transactionId + ":transaction";
+        }
+
+        // Lookup transaction keys by userId
+        public static String usersTransactions(String userId) {
+            return "userId:" + userId + ":transactionIds";
+        }
+
+        // Lookup user profile by userId
+        public static String userProfile(String userId) {
+            return "userId:" + userId + ":userProfile";
+        }
+
+        // Lookup user profile by email
+        public static String userProfileFromEmail(String email) {
+            return "email:" + email + ":userId";
+        }
+
+        // Lookup all user profiles
+        public static String allUserProfiles = "allUserProfiles:userIds";
+    }
 
     public static class Config {
         public final static String PORT = "APP_PORT";

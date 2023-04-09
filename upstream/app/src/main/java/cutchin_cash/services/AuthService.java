@@ -1,11 +1,13 @@
 package cutchin_cash.services;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.Date;
 
 import com.auth0.jwt.algorithms.*;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-
+import cutchin_cash.storage.UserModel;
 import cutchin_cash.utils.Const;
 
 import com.auth0.jwt.JWT;
@@ -15,9 +17,11 @@ import io.grpc.StatusException;
 
 public class AuthService {
     private final Algorithm algorithm;
+    private final UserService userService;
 
-    public AuthService(String hs256Secret) {
-        algorithm = Algorithm.HMAC256(hs256Secret);
+    public AuthService(UserService userService, String hs256Secret) {
+        this.algorithm = Algorithm.HMAC256(hs256Secret);
+        this.userService = userService;
     }
 
     public static String parseAuthorizationMetadata(
@@ -64,6 +68,28 @@ public class AuthService {
             return decodeToken(token);
         } catch (JWTDecodeException e) {
             throw new StatusException(Status.UNAUTHENTICATED);
+        }
+    }
+
+    public boolean authenticated(String userId, String password) {
+        UserModel userProfile = userService.getUser(userId);
+        if (userProfile == null) {
+            return false;
+        }
+
+        String providedPassword = hashWithSalt(password, userProfile.salt);
+        return providedPassword.equals(userProfile.password);
+    }
+
+    // Utility method to hash a password with salt and pepper
+    public static String hashWithSalt(String password, String salt) {
+        try {
+            String combined = String.format("%s%s", salt, password);
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(combined.getBytes(StandardCharsets.UTF_8));
+            return new String(hash, StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 }

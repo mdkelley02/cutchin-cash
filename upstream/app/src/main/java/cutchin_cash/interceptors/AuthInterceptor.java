@@ -25,7 +25,6 @@ public class AuthInterceptor implements ServerInterceptor {
             Metadata metadata,
             ServerCallHandler<ReqT, RespT> serverCallHandler) {
         try {
-
             if (AuthService.shouldSkipAuth(serverCall.getMethodDescriptor()
                     .getFullMethodName()))
                 return serverCallHandler.startCall(serverCall, metadata);

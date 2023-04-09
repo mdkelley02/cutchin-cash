@@ -19,6 +19,7 @@ import cutchin_cash.grpc_services.GrpcTransactionService;
 import cutchin_cash.grpc_services.GrpcUserService;
 import cutchin_cash.interceptors.AuthInterceptor;
 import cutchin_cash.interceptors.LogInterceptor;
+import cutchin_cash.interceptors.ValidationInterceptor;
 import cutchin_cash.services.AuthService;
 import cutchin_cash.services.TransactionService;
 import cutchin_cash.services.UserService;
@@ -38,8 +39,8 @@ public class CutchinCashServer {
         this.port = port;
         this.redisClient = redisClient;
 
-        AuthService authService = new AuthService(hs256Key);
         UserService userService = new UserService(redisClient);
+        AuthService authService = new AuthService(userService, hs256Key);
         TransactionService transactionService =
                 new TransactionService(redisClient, userService);
 
@@ -47,8 +48,9 @@ public class CutchinCashServer {
                 .sslContext(GrpcSslContexts.forServer(certChain, privateKey)
                         .clientAuth(ClientAuth.NONE)
                         .sslProvider(SslProvider.OPENSSL).build())
-                .intercept(new LogInterceptor())
                 .intercept(new AuthInterceptor(authService))
+                .intercept(new ValidationInterceptor())
+                .intercept(new LogInterceptor())
                 .addService(new GrpcUserService(userService))
                 .addService(new GrpcTransactionService(transactionService))
                 .addService(new GrpcAuthService(authService, userService))
@@ -60,26 +62,28 @@ public class CutchinCashServer {
         log.info("Server started, listening on {}", port);
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            System.err.println(
-                    "*** shutting down gRPC server since JVM is shutting down");
+            System.out.println(this.getClass().getName() + " shutting down%n");
             System.out.println("Saving data to redis");
+
             redisClient.save();
             redisClient.close();
-            CutchinCashServer.this.stop();
-            System.err.println("*** server shut down");
-        }));
+            if (server != null && !server.isShutdown()) {
+                server.shutdown();
+            }
 
+            System.out.println("Shutdown complete");
+        }));
     }
 
     public void blockUntilShutdown() throws InterruptedException {
-        if (server == null) {
+        if (server == null || server.isShutdown()) {
             return;
         }
         server.awaitTermination();
     }
 
     public void stop() {
-        if (server == null) {
+        if (server == null || server.isShutdown()) {
             return;
         }
         server.shutdown();

@@ -14,6 +14,7 @@ message User {
     Money balance = 5;
 }
 
+
 message PrivateUser {
     string userId = 1;
     string displayName = 2;
@@ -28,9 +29,10 @@ message Money {
 
 
 enum TransactionStatus {
-    PENDING = 0;
-    ACCEPTED = 1;
-    REJECTED = 2;
+    UNKNOWN = 0;
+    PENDING = 1;
+    ACCEPTED = 2;
+    REJECTED = 3;
 }
 
 
@@ -55,9 +57,11 @@ message Token {
 
 enum ErrorType {
     INVALID_CREDENTIALS = 0;
-    USER_NOT_FOUND = 1;
-    TRANSACTION_NOT_FOUND = 2;
-    TRANSACTION_ALREADY_DECISIONED = 3;
-    INSUFFICIENT_BALANCE = 4;
-    INVALID_AMOUNT = 5;
+    PAYING_USER_NOT_FOUND = 1;
+    RECEIVING_USER_NOT_FOUND = 2;
+    CANNOT_SEND_TO_SELF = 3;
+    TRANSACTION_NOT_FOUND = 4;
+    TRANSACTION_ALREADY_DECISIONED = 5;
+    INSUFFICIENT_BALANCE = 6;
+    INVALID_AMOUNT = 7;
 }
