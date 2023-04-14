@@ -68,8 +68,7 @@ public final class Const {
 
     public static class Config {
         public final static String PORT = "APP_PORT";
-        public final static String REDIS_HOST = "APP_REDIS_HOST";
-        public final static String REDIS_PORT = "APP_REDIS_PORT";
+        public final static String REDIS_HOST = "APP_REDIS_URI";
         public final static String PEPPER = "APP_PEPPER";
         public final static String CERT_CHAIN_PATH =
                 "APP_CERT_CHAIN_PATH";
@@ -80,13 +79,16 @@ public final class Const {
                 new HashMap<String, String>() {
                     {
                         put(PORT, "50051");
-                        put(REDIS_HOST, "localhost");
-                        put(REDIS_PORT, "6379");
+                        put(REDIS_HOST, "redis");
                         put(PEPPER, "pepper");
+                        // put(CERT_CHAIN_PATH,
+                        //         "src/main/resources/certs/certificate.crt");
+                        // put(PRIVATE_KEY_PATH,
+                        //         "src/main/resources/certs/private.pem.pkcs8");
                         put(CERT_CHAIN_PATH,
-                                "src/main/resources/certs/certificate.crt");
+                                "certs/certificate.crt");
                         put(PRIVATE_KEY_PATH,
-                                "src/main/resources/certs/private.pem.pkcs8");
+                                "certs/private.pem.pkcs8");
                         put(HS256_KEY, "HS256_KEY");
                     }
                 };

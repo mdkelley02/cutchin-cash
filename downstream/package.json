@@ -1,13 +1,17 @@
 {
   "dependencies": {
+    "@react-navigation/native": "^6.1.6",
+    "@react-navigation/native-stack": "^6.9.12",
     "expo": "^48.0.7",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "react-native": "0.71.3",
+    "react-native": "0.71.6",
     "react-native-web": "~0.18.7",
     "@expo/webpack-config": "^18.0.1",
     "@grpc/grpc-js": "^1.8.11",
-    "source-map-support": "^0.5.21"
+    "source-map-support": "^0.5.21",
+    "expo-splash-screen": "~0.18.1",
+    "expo-status-bar": "~1.4.4"
   },
   "devDependencies": {
     "@babel/core": "^7.19.3",
@@ -20,9 +24,9 @@
     "ts-proto": "^1.140.0"
   },
   "scripts": {
-    "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "start": "expo start --dev-client",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web",
     "create-component": "node ./scripts/CreateComponent.js",
     "start-server": "node ./scripts/StartServer.js",

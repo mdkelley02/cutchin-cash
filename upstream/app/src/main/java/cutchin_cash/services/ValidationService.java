@@ -9,8 +9,6 @@ import cutchin_cash.utils.ValidationException;
 import io.grpc.Status;
 
 public class ValidationService {
-    private final static Logger log = org.slf4j.LoggerFactory.getLogger(ValidationService.class);
-
     private static boolean isNotEmpty(String str) {
         return str.compareTo("") != 0;
     }
@@ -22,13 +20,15 @@ public class ValidationService {
     private static void isValidAmount(Money amount) throws ValidationException {
         int fraction = amount.getFraction();
         int whole = amount.getWhole();
-        log.info("total=${}.{}, fraction={}, whole={}", whole, fraction, fraction, whole);
+
         if (fraction == 0 && whole == 0) {
             throw new ValidationException("amount");
         }
+
         if (fraction < 0 || fraction > 99) {
             throw new ValidationException("fraction");
         }
+
         if (whole < 0) {
             throw new ValidationException("whole");
         }

@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'application'
     id 'com.google.protobuf' version '0.9.2'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
 repositories {
@@ -54,19 +55,35 @@ test {
 }
 
 application {
-    // Define the main class for the application.
     mainClass = 'cutchin_cash.App'
+}
+
+jar  {
+    manifest {
+        attributes 'Main-Class': 'cutchin_cash.App'
+    }
+}
+
+task runCertGen(type: Exec) {
+    commandLine 'src/main/resources/./cert_gen.sh'
 }
 
 task redisVolume(type: Exec) {
     commandLine 'docker', 'volume', 'create', 'cutchin-cash-redis-data'
 }
 
-task runRedis(type: Exec) {
-    dependsOn redisVolume
-    commandLine 'docker', 'run', '-p', '6379:6379',  '-v', 'cutchin-cash-redis-data:/data', '-i', 'redis/redis-stack:latest'
+task createNetwork(type: Exec) {
+    commandLine 'docker', 'network', 'create', 'cutchin-cash'
 }
 
-task runCertGen(type: Exec) {
-    commandLine 'src/main/resources/./cert_gen.sh'
+task buildDocker(type: Exec) {
+    commandLine 'docker', 'build', '.', '-t', 'cutchin-cash-server', '-f', 'Dockerfile'
+}
+
+task runRedis(type: Exec) {
+    commandLine 'docker', 'run', '--name=redis-server', '--network=cutchin-cash', '--network-alias=redis', '--volume=cutchin-cash-redis-data:/data', '-d', 'redis:latest'
+}
+
+task runDocker(type: Exec) {
+    commandLine 'docker', 'run', '--name=cutchin-cash-server', '--network=cutchin-cash', '-p', '50051:50051', '-id', 'cutchin-cash-server'
 }

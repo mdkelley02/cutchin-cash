@@ -4,6 +4,7 @@ import java.util.UUID;
 import cutchin_cash.models.common.PrivateUser;
 import cutchin_cash.models.common.User;
 import cutchin_cash.services.AuthService;
+import cutchin_cash.services.PasswordsService;
 
 public class UserModel extends BaseModel {
     public final static int STARTING_BALANCE = 10;
@@ -44,7 +45,7 @@ public class UserModel extends BaseModel {
         String userId = UUID.randomUUID().toString();
         MoneyModel balance = MoneyModel.fromNew(STARTING_BALANCE, 0);
         String salt = UUID.randomUUID().toString();
-        String hashedPassword = AuthService.hashWithSalt(password, salt);
+        String hashedPassword = PasswordsService.hashWithSalt(password, salt);
 
         return new UserModel(
                 userId,

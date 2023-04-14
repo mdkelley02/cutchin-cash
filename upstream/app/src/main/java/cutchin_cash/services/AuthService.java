@@ -24,24 +24,21 @@ public class AuthService {
         this.userService = userService;
     }
 
-    public static String parseAuthorizationMetadata(
-            Metadata metadata) throws StatusException {
+    public static String parseAuthorizationMetadata(Metadata metadata) throws StatusException {
         String authHeader = metadata.get(Const.Auth.METADATA_KEY);
-        if (authHeader == null)
+        if (authHeader == null) {
             throw new StatusException(Status.UNAUTHENTICATED);
-
+        }
         String[] authHeaderParts = authHeader.split(" ");
-        if (authHeaderParts.length != 2)
-            throw new StatusException(Status.UNAUTHENTICATED);
 
-        if (!authHeaderParts[0].equals(Const.Auth.AUTH_TYPE))
-            throw new StatusException(Status.UNAUTHENTICATED);
+        if (authHeaderParts.length == 2) {
+            return authHeaderParts[1];
+        }
 
-        return authHeaderParts[1];
+        throw new StatusException(Status.UNAUTHENTICATED);
     }
 
-    public static boolean shouldSkipAuth(
-            String fullMethodName) {
+    public static boolean shouldSkipAuth(String fullMethodName) {
         return Const.Auth.EXCLUDED_AUTH_METHODS.contains(fullMethodName);
     }
 
@@ -73,23 +70,8 @@ public class AuthService {
 
     public boolean authenticated(String userId, String password) {
         UserModel userProfile = userService.getUser(userId);
-        if (userProfile == null) {
-            return false;
-        }
-
-        String providedPassword = hashWithSalt(password, userProfile.salt);
-        return providedPassword.equals(userProfile.password);
-    }
-
-    // Utility method to hash a password with salt and pepper
-    public static String hashWithSalt(String password, String salt) {
-        try {
-            String combined = String.format("%s%s", salt, password);
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hash = digest.digest(combined.getBytes(StandardCharsets.UTF_8));
-            return new String(hash, StandardCharsets.UTF_8);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        return userProfile != null ? PasswordsService.verifyPassword(password, userProfile) : false;
     }
 }
+
+

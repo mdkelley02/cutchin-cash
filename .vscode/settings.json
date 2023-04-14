@@ -16,4 +16,5 @@
     "editor.insertSpaces": true,
     "editor.tabSize": 4
   },
+  "java.compile.nullAnalysis.mode": "automatic"
 }
