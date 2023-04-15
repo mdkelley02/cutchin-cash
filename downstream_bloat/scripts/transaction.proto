@@ -1,0 +1,53 @@
+syntax="proto3";
+
+import "common.proto";
+
+package cutchin_cash.transaction;
+
+option java_package = "cutchin_cash.models.transaction";
+option java_multiple_files = true;
+
+
+message SendPaymentRequest {
+    string receivingUserId = 2;
+    string description = 3;
+    cutchin_cash.common.Money amount = 4;
+}
+message SendPaymentResponse {
+    cutchin_cash.common.Transaction transaction = 1;
+}
+
+
+message DemandPaymentRequest {
+    string payingUserId = 1;
+    string description = 2;
+    cutchin_cash.common.Money amount = 3;
+}
+message DemandPaymentResponse {
+    cutchin_cash.common.Transaction transaction = 1;
+}
+
+
+message DecisionPaymentRequest {
+    string transactionId = 1;
+    cutchin_cash.common.TransactionStatus status = 2;
+}
+message DecisionPaymentResponse {
+    cutchin_cash.common.Transaction transaction = 1;
+}
+
+
+message ListTransactionsRequest {
+    string userId = 1;
+}
+message ListTransactionsResponse {
+    repeated cutchin_cash.common.Transaction transactions = 1;
+}
+
+
+service TransactionService {
+    rpc SendPayment(SendPaymentRequest) returns (SendPaymentResponse) {}
+    rpc DemandPayment(DemandPaymentRequest) returns (DemandPaymentResponse) {}
+    rpc DecisionPayment(DecisionPaymentRequest) returns (DecisionPaymentResponse) {}
+    rpc ListTransactions(ListTransactionsRequest) returns (ListTransactionsResponse) {}
+}

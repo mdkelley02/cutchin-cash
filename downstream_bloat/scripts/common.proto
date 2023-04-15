@@ -1,0 +1,67 @@
+syntax="proto3";
+
+package cutchin_cash.common;
+
+option java_package = "cutchin_cash.models.common";
+option java_multiple_files = true;
+
+
+message User {
+    string userId = 1;
+    string displayName = 2;
+    string fullName = 3;
+    string email = 4;
+    Money balance = 5;
+}
+
+
+message PrivateUser {
+    string userId = 1;
+    string displayName = 2;
+    string fullName = 3;
+}
+
+
+message Money {
+    sint32 whole = 1;
+    int32 fraction = 2;
+}
+
+
+enum TransactionStatus {
+    UNKNOWN = 0;
+    PENDING = 1;
+    ACCEPTED = 2;
+    REJECTED = 3;
+}
+
+
+message Transaction {
+    string transactionId = 1;
+    string receivingUserId = 2;
+    string payingUserId = 3;
+    string description = 4;
+    Money amount = 5;
+    string timestamp = 6;
+    TransactionStatus status = 7;
+}
+
+
+message Empty {}
+
+
+message Token {
+    string token = 1;
+}
+
+
+enum ErrorType {
+    INVALID_CREDENTIALS = 0;
+    PAYING_USER_NOT_FOUND = 1;
+    RECEIVING_USER_NOT_FOUND = 2;
+    CANNOT_SEND_TO_SELF = 3;
+    TRANSACTION_NOT_FOUND = 4;
+    TRANSACTION_ALREADY_DECISIONED = 5;
+    INSUFFICIENT_BALANCE = 6;
+    INVALID_AMOUNT = 7;
+}

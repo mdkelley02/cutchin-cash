@@ -1,0 +1,43 @@
+{
+  "dependencies": {
+    "@expo/webpack-config": "^18.0.1",
+    "@mitch528/react-native-grpc": "^0.1.10",
+    "@protobuf-ts/plugin": "^2.8.3",
+    "@protobuf-ts/runtime": "^2.8.2",
+    "@protobuf-ts/runtime-rpc": "^2.8.2",
+    "@react-navigation/native": "^6.1.6",
+    "@react-navigation/native-stack": "^6.9.12",
+    "big-integer": "^1.6.51",
+    "expo": "^48.0.7",
+    "expo-splash-screen": "~0.18.1",
+    "expo-status-bar": "~1.4.4",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-native": "0.71.6",
+    "react-native-web": "~0.18.7",
+    "source-map-support": "^0.5.21",
+    "text-encoding": "^0.7.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.19.3",
+    "@types/react": "~18.0.24",
+    "@types/react-native": "~0.70.6",
+    "concurrently": "^7.6.0",
+    "grpc-tools": "^1.12.4",
+    "rimraf": "^4.1.2",
+    "ts-proto": "^1.140.0",
+    "typescript": "^4.6.3"
+  },
+  "scripts": {
+    "start": "expo start --dev-client",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
+    "web": "expo start --web",
+    "create-component": "node ./scripts/CreateComponent.js",
+    "start-server": "node ./scripts/StartServer.js",
+    "generate-protos": "node ./scripts/GenerateProtos.js"
+  },
+  "version": "1.0.0",
+  "private": true,
+  "name": "cutchin-cash"
+}
