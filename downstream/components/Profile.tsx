@@ -1,5 +1,5 @@
 import React from "react";
-import { View } from "./Themed";
+import { View } from "./Themed/Themed";
 
 function Profile() {
   return View;

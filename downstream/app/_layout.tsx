@@ -8,7 +8,9 @@ import { useFonts } from "expo-font";
 import { SplashScreen, Stack } from "expo-router";
 import { useEffect } from "react";
 import { useColorScheme } from "react-native";
-
+import { AppProvider } from "../store/AppStateContext";
+import Colors from "../constants/Colors";
+import { DefaultScheme } from "../components/Themed";
 export { ErrorBoundary } from "expo-router";
 
 export const unstable_settings = {
@@ -38,16 +40,43 @@ function RootLayoutNav() {
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen
-          name="(tabs)"
-          options={{
-            headerShown: false,
+      <AppProvider>
+        <Stack
+          screenOptions={{
+            headerStyle: {
+              backgroundColor: Colors[colorScheme ?? DefaultScheme].background,
+            },
+            headerTintColor: Colors[colorScheme ?? DefaultScheme].text,
           }}
-        />
-        <Stack.Screen name="Modal" options={{ presentation: "modal" }} />
-        <Stack.Screen name="Profile" />
-      </Stack>
+        >
+          <Stack.Screen
+            name="(tabs)"
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="ExecutePayModal"
+            options={{
+              headerShown: false,
+              presentation: "modal",
+            }}
+          />
+          <Stack.Screen
+            name="Search"
+            options={{
+              headerShown: false,
+              presentation: "modal",
+            }}
+          />
+          <Stack.Screen
+            name="Profile"
+            options={{
+              presentation: "card",
+            }}
+          />
+        </Stack>
+      </AppProvider>
     </ThemeProvider>
   );
 }

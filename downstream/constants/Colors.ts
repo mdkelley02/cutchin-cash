@@ -10,17 +10,23 @@ export type Palette = {
   text: string;
   tint: string;
   card: string;
+  input: string;
+  inputText: string;
+  subText: string;
 };
 
 const dark: Palette = {
   background: "#121723",
-  button: "#314468",
+  button: "#2a2e39",
   buttonText: "#fefeff",
-  buttonSecondary: "#1F2C3F",
+  buttonSecondary: "#1c2130",
   buttonTextSecondary: "#C3C8D4",
   text: "#fefeff",
   tint: "#C3C8D4",
-  card: "#182336",
+  card: "#1c2130",
+  input: "#2a2e39",
+  inputText: "#454954",
+  subText: "#454954",
 };
 
 const light: Palette = {
@@ -32,6 +38,9 @@ const light: Palette = {
   text: "#121723",
   tint: "#1F2C3F",
   card: "#E0E5F0",
+  input: "#E0E5F0",
+  inputText: "#121723",
+  subText: "#314468",
 };
 
 export default {
