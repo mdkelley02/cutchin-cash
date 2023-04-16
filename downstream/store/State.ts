@@ -42,7 +42,9 @@ export const INITIAL_PROFILE_VIEW_STATE: ProfileViewState = {
 };
 
 export const ExecutePayStateStorageKey = "EXECUTE_PAY_STATE";
-export type PayEvent = "Pay" | "Request" | "AddFunds";
+
+const PayEvents = ["Pay", "Request", "AddFunds"] as const;
+export type PayEvent = typeof PayEvents[number];
 export interface ExecutePayState {
   payEvent: PayEvent | null;
   payingUserId: string | null;

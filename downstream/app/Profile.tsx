@@ -10,24 +10,50 @@ import {
 } from "../components/Themed";
 import { View as DefaultView } from "react-native";
 import { Image } from "expo-image";
-import { ExecutePayType } from "../store";
+import { ExecutePayType, PayEvent } from "../store";
 import { useProfilePicture } from "../hooks/useProfilePicture";
 import { FontAwesome5 } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { useNavigation, useRouter } from "expo-router";
 import { Routes } from "../constants/Routes";
 import { useAppState } from "../hooks/useAppState";
 import { useUser } from "../hooks/useUser";
+import { useExecutePay } from "../hooks/useExecutePay";
 
-const MAX_LABEL_LENGTH = 20;
+const MAX_LABEL_LENGTH = 15;
 const PADDING = Sizes.md;
+const PROFILE_CONTROL_EVENTS = [
+  {
+    payEvent: "Request" as PayEvent,
+    icon: "money-check-alt" as ExecutePayType,
+    label: "Request",
+  },
+  {
+    payEvent: "Pay" as PayEvent,
+    icon: "money-bill-wave" as ExecutePayType,
+    label: "Pay",
+  },
+];
 
 export default function Profile() {
-  const { profileViewState, authState, dispatchExecutePay } = useAppState();
+  const { profileViewState } = useAppState();
   const { isUserMe, findUser } = useUser();
+  const navigaton = useNavigation();
+
+  const profileUserId = profileViewState.userId;
+  if (profileUserId == null) {
+    navigaton.goBack();
+    return null;
+  }
+
+  const profileUser = findUser(profileUserId);
+  if (profileUser == null) {
+    navigaton.goBack();
+    return null;
+  }
+
   const router = useRouter();
   const color = useColor();
-  const profileUserId = profileViewState.userId;
-  const profileUser = findUser(profileUserId);
+  const { startRequestPaymentFlow, startSendPaymentFlow } = useExecutePay();
 
   function ProfileCardInformation() {
     const profilePicture = useProfilePicture();
@@ -70,40 +96,50 @@ export default function Profile() {
   }
 
   function ProfileCardControls() {
-    function handleRequestPay() {
-      dispatchExecutePay({
-        type: ExecutePayType.SetAll,
-        payload: {
-          payingUserId: authState.user?.userId,
-          receivingUserId: profileViewState.userId,
-        },
-      });
-      router.push(Routes.Pay);
+    function ProfileButton({
+      key,
+      payEvent,
+      label,
+      icon,
+    }: typeof PROFILE_CONTROL_EVENTS[number] & { key: number }) {
+      function startPayFlow() {
+        payEvent === "Request"
+          ? startRequestPaymentFlow(profileUserId!)
+          : startSendPaymentFlow(profileUserId!);
+        router.push(Routes.Pay);
+      }
+
+      return (
+        <Button
+          style={{
+            flexDirection: "row",
+            justifyContent: "center",
+            alignItems: "center",
+            flexBasis: "48%",
+            padding: PADDING,
+            columnGap: PADDING,
+          }}
+          onPress={() => startPayFlow()}
+        >
+          <FontAwesome5 name={icon} size={Sizes.lg} color={color.text} />
+          <Text type="h6" style={{ color: color.text }}>
+            {label}
+          </Text>
+        </Button>
+      );
     }
 
     return (
-      <DefaultView>
-        <DefaultView style={{ gap: Sizes.sm }}>
-          <Button
-            style={{
-              flexDirection: "row",
-              justifyContent: "center",
-              alignItems: "center",
-              padding: PADDING,
-              columnGap: PADDING,
-            }}
-            onPress={handleRequestPay}
-          >
-            <FontAwesome5
-              name="money-check-alt"
-              size={Sizes.lg}
-              color={color.text}
-            />
-            <Text type="h6" style={{ color: color.text }}>
-              Request Payment
-            </Text>
-          </Button>
-        </DefaultView>
+      <DefaultView
+        style={{
+          gap: Sizes.sm,
+          flexDirection: "row",
+          justifyContent: "space-between",
+        }}
+      >
+        {PROFILE_CONTROL_EVENTS.map((e, key) => (
+          <ProfileButton key={key} {...e} />
+        ))}
       </DefaultView>
     );
   }

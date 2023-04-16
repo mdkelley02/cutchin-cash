@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Text,
   View,
@@ -10,12 +10,11 @@ import {
 import { TouchableOpacity } from "react-native";
 import { Entypo, FontAwesome5 } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { Events, Routes } from "../../constants/Routes";
+import { Routes } from "../../constants/Routes";
 import { PayEvent, PayViewType } from "../../store";
-import { EventsTolabel } from "../../models/Transalations";
-import { findUser } from "../../models/Utils";
 import { useAppState } from "../../hooks/useAppState";
-import { Palette } from "../../constants/Colors";
+import { PayEventToLabel } from "../../constants/Labels";
+import { useExecutePay } from "../../hooks/useExecutePay";
 
 type KeyButtonProps = {
   label: string | React.ReactNode;
@@ -23,19 +22,37 @@ type KeyButtonProps = {
 };
 
 const KEY_PADS = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-const PAY_EVENTS: PayEvent[] = ["Pay", "Request", "AddFunds"];
 
 export default function KeyPad() {
   const router = useRouter();
-  const { payViewState, executePayState, appDataState, dispatchPayView } =
-    useAppState();
+  const { payViewState, executePayState, dispatchPayView } = useAppState();
+  const { getReceivingUser, getPayingUser } = useExecutePay();
   const color = useColor();
+
+  function UserSelector() {
+    const userToDisplay =
+      executePayState.payEvent === "Request"
+        ? getPayingUser()
+        : getReceivingUser();
+
+    function onPress() {}
+
+    return (
+      <TouchableOpacity onPress={onPress}>
+        <Text>{userToDisplay?.fullName}</Text>
+      </TouchableOpacity>
+    );
+  }
 
   function KeyPadHeader() {
     function computedAmount() {
       const { whole, fraction } = payViewState.payAmount;
       return fraction == null ? whole : (whole + fraction / 100).toFixed(2);
     }
+    const userToDisplay =
+      executePayState.payEvent === "Request"
+        ? getPayingUser()
+        : getReceivingUser();
 
     return (
       <View
@@ -44,6 +61,7 @@ export default function KeyPad() {
           alignItems: "center",
         }}
       >
+        {userToDisplay != null && <Text>{userToDisplay.fullName}</Text>}
         <Text
           type="h1"
           style={{
@@ -162,10 +180,8 @@ export default function KeyPad() {
   }
 
   function KeyPadControls() {
-    const events =
-      executePayState.payEvent == null
-        ? [Events.Pay]
-        : [executePayState.payEvent];
+    const events: PayEvent[] =
+      executePayState.payEvent == null ? ["Pay"] : [executePayState.payEvent];
 
     return (
       <View
@@ -185,7 +201,7 @@ export default function KeyPad() {
               });
             }}
           >
-            <Text type="h5">{EventsTolabel[type]}</Text>
+            <Text type="h5">{PayEventToLabel[type]}</Text>
           </Button>
         ))}
       </View>

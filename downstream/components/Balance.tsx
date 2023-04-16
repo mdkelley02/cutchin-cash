@@ -6,20 +6,15 @@ import { useRouter } from "expo-router";
 import { Events, Routes } from "../constants/Routes";
 import { ExecutePayType } from "../store";
 import { useAppState } from "../hooks/useAppState";
+import { useExecutePay } from "../hooks/useExecutePay";
 
 export default function Balance() {
   const router = useRouter();
-  const { authState, dispatchExecutePay } = useAppState();
+  const { authState } = useAppState();
+  const { startAddFundsFlow } = useExecutePay();
 
-  return (
-    <Card
-      style={{
-        flex: 1,
-        gap: Sizes.sm,
-        padding: Sizes.md,
-      }}
-    >
-      {/* Top */}
+  function BalanceInformation() {
+    return (
       <View
         style={{
           flex: 1,
@@ -27,7 +22,6 @@ export default function Balance() {
           justifyContent: "space-between",
         }}
       >
-        {/* Balance */}
         <View>
           <Text>Cash Balance</Text>
           <Text type="h1">
@@ -39,8 +33,11 @@ export default function Balance() {
           </Text>
         </View>
       </View>
+    );
+  }
 
-      {/* Bottom */}
+  function BalanceControls() {
+    return (
       <View
         style={{
           flex: 1,
@@ -51,10 +48,7 @@ export default function Balance() {
         <Button
           onPress={() => {
             router.push(Routes.Pay);
-            dispatchExecutePay({
-              type: ExecutePayType.SetPayEvent,
-              payload: Events.AddFunds,
-            });
+            startAddFundsFlow();
           }}
         >
           <Text type="h6">Add Cash</Text>
@@ -63,6 +57,19 @@ export default function Balance() {
           <Text type="h6">Cash Out</Text>
         </Button>
       </View>
+    );
+  }
+
+  return (
+    <Card
+      style={{
+        flex: 1,
+        gap: Sizes.sm,
+        padding: Sizes.md,
+      }}
+    >
+      <BalanceInformation />
+      <BalanceControls />
     </Card>
   );
 }

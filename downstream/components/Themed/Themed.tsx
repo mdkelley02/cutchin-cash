@@ -18,7 +18,7 @@ export type ViewProps = ThemeProps & DefaultView["props"];
 export type ButtonProps = ThemeProps & TouchableOpacity["props"];
 export type TextInputProps = ThemeProps & DefaultTextInput["props"];
 
-const TextTypes = ["h1", "h2", "h3", "h4", "h5", "h6", "p"] as const;
+export const TextTypes = ["h1", "h2", "h3", "h4", "h5", "h6", "p"] as const;
 type TextType = typeof TextTypes[number];
 
 export function Text(props: TextProps) {
