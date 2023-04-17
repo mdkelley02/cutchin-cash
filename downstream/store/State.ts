@@ -1,6 +1,5 @@
 import { Transaction } from "../models/Transaction.model";
 import { User } from "../models/User.model";
-import { Event, Events } from "../constants/Routes";
 
 export const AuthStateStorageKey = "AUTH_STATE";
 export interface AuthState {
@@ -43,7 +42,8 @@ export const INITIAL_PROFILE_VIEW_STATE: ProfileViewState = {
 
 export const ExecutePayStateStorageKey = "EXECUTE_PAY_STATE";
 
-const PayEvents = ["Pay", "Request", "AddFunds"] as const;
+export const PayEvents = ["Pay", "Request", "AddFunds"] as const;
+export const SelectablePayEvents = ["Pay", "Request"] as const;
 export type PayEvent = typeof PayEvents[number];
 export interface ExecutePayState {
   payEvent: PayEvent | null;

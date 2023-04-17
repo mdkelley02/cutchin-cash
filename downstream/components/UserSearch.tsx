@@ -5,9 +5,8 @@ import {
   View,
   TextInput,
   Sizes,
-  TouchableCard,
-  ModalBase,
   useColor,
+  BorderRadius,
 } from "../components/Themed";
 import { ScrollView, TouchableOpacity } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
@@ -40,6 +39,8 @@ export default function UserSearch({
   }, [search, appDataState.users]);
 
   function UserSearchInput() {
+    const [tempSearch, setTempSearch] = useState(search);
+
     return (
       <View
         style={{
@@ -47,7 +48,7 @@ export default function UserSearch({
           alignItems: "center",
           justifyContent: "space-between",
           backgroundColor: color.input,
-          borderRadius: Sizes.sm,
+          borderRadius: BorderRadius.Input,
           padding: Sizes.sm,
           height: 56,
         }}
@@ -60,18 +61,24 @@ export default function UserSearch({
             color: color.text,
           }}
           placeholderTextColor={color.inputText}
-          value={search}
-          placeholder="Search for a user"
-          onChangeText={setSearch}
+          placeholder="Search Users"
+          value={tempSearch}
+          onChangeText={(text) => setTempSearch(text)}
+          onSubmitEditing={() => setSearch(tempSearch)}
         />
-        <TouchableOpacity onPress={() => setSearch("")}>
+        <TouchableOpacity
+          onPress={() => {
+            setSearch("");
+            setTempSearch("");
+          }}
+        >
           <FontAwesome5
             name="times"
             size={Sizes.md}
             style={{
-              display: search.length === 0 ? "none" : "flex",
+              display: tempSearch.length === 0 ? "none" : "flex",
             }}
-            color={search.length === 0 ? "transparent" : color.inputText}
+            color={tempSearch.length === 0 ? "transparent" : color.inputText}
           />
         </TouchableOpacity>
       </View>
@@ -80,25 +87,41 @@ export default function UserSearch({
 
   function UserSearchItem({ key, user }: { key: number; user: User }) {
     return (
-      <TouchableCard key={key} onPress={() => onUserSelect(user)}>
+      <TouchableOpacity
+        key={key}
+        onPress={() => onUserSelect(user)}
+        style={{
+          backgroundColor: color.card,
+          borderRadius: BorderRadius.Card,
+          padding: Sizes.sm,
+        }}
+      >
         <DefaultView
           style={{
-            backgroundColor: color.buttonSecondary,
+            rowGap: Sizes.xxs,
           }}
         >
           {[user.fullName, user.displayName].map((name, key) => (
-            <Text type={key === 0 ? "h5" : "p"} key={key}>
+            <Text
+              bold={name === user.displayName}
+              type={key === 0 ? "h5" : "p"}
+              key={key}
+              style={{
+                color: name === user.displayName ? color.subText : color.text,
+              }}
+            >
+              {name === user.displayName ? "@" : ""}
               {name}
             </Text>
           ))}
         </DefaultView>
-      </TouchableCard>
+      </TouchableOpacity>
     );
   }
 
   function UserScrollContainer() {
     return (
-      <ScrollView contentContainerStyle={{ flexGrow: 1, rowGap: Sizes.md }}>
+      <ScrollView contentContainerStyle={{ flexGrow: 1, rowGap: Sizes.lg }}>
         {filteredUsers.map((user, key) => (
           <UserSearchItem key={key} user={user} />
         ))}
@@ -107,7 +130,11 @@ export default function UserSearch({
   }
 
   return (
-    <View style={ModalBase}>
+    <View
+      style={{
+        gap: Sizes.md,
+      }}
+    >
       <Text type="h3">{modalTitle}</Text>
       <UserSearchInput />
       <UserScrollContainer />

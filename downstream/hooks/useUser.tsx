@@ -8,6 +8,7 @@ export function useUser() {
 
   function findUser(userId: Nullable<string>): Nullable<User> {
     if (userId == null) return null;
+    if (authState.user?.userId === userId) return authState.user;
     return appDataState.users.find((u) => u.userId === userId) ?? null;
   }
 

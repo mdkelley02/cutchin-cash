@@ -1,11 +1,18 @@
-import { Button, Text, View, useColor } from "../components/Themed";
+import { BetterButton, Text, View, useColor } from "../components/Themed";
 import { ModalBase, Sizes } from "../components/Themed";
-import { useNavigation } from "expo-router";
+import { useNavigation, useRouter } from "expo-router";
 import { formatAmount } from "../models/Utils";
 import { View as DefaultView } from "react-native";
 import { useAppState } from "../hooks/useAppState";
 import { PayEventToLabel } from "../constants/Labels";
-import { useUser } from "../hooks/useUser";
+import { useExecutePay } from "../hooks/useExecutePay";
+import {
+  ExecutePayType,
+  INITIAL_EXECUTE_PAY_STATE,
+  INITIAL_PAY_VIEW_STATE,
+  MetaType,
+} from "../store";
+import { useMemo } from "react";
 
 function Field(key: number, title: string, value: string) {
   return (
@@ -17,21 +24,19 @@ function Field(key: number, title: string, value: string) {
 }
 
 export default function ExecutePayModal() {
-  const navigation = useNavigation();
-  const { payViewState, executePayState } = useAppState();
+  const router = useRouter();
+  const { payViewState, dispatchExecutePay, dispatchPayView } = useAppState();
+  const { executePayState, getPayingUser, getReceivingUser } = useExecutePay();
   if (Object.values(executePayState).some((s) => s == null)) {
-    navigation.goBack();
+    router.back();
   }
-
-  const { findUser } = useUser();
-  const colors = useColor();
-  const payingUser = findUser(executePayState.payingUserId);
-  const receivingUser = findUser(executePayState.receivingUserId);
+  const payingUser = getPayingUser();
+  const receivingUser = getReceivingUser();
 
   function TransactionInformation() {
     const FIELDS = [
       {
-        title: `Confirm ${PayEventToLabel[executePayState.payEvent!]}`,
+        title: `Amount`,
         value: `$${formatAmount(
           payViewState.payAmount.whole,
           payViewState.payAmount.fraction ?? 0
@@ -50,6 +55,9 @@ export default function ExecutePayModal() {
     return (
       <DefaultView style={{ rowGap: Sizes.lg }}>
         <DefaultView style={{ rowGap: Sizes.sm }}>
+          <Text type="h2">
+            Confirm {PayEventToLabel[executePayState.payEvent!]}
+          </Text>
           {FIELDS.map((f, key) => Field(key, f.title, f.value))}
         </DefaultView>
       </DefaultView>
@@ -57,6 +65,39 @@ export default function ExecutePayModal() {
   }
 
   function TransactionControls() {
+    const labels = useMemo(
+      () => [
+        {
+          label: "Cancel",
+          onPress: () => {
+            dispatchExecutePay({
+              type: MetaType.Restore,
+              payload: INITIAL_EXECUTE_PAY_STATE,
+            });
+            dispatchPayView({
+              type: MetaType.Restore,
+              payload: INITIAL_PAY_VIEW_STATE,
+            });
+            router.back();
+          },
+        },
+        {
+          label: PayEventToLabel[executePayState.payEvent!],
+          onPress: () => {
+            dispatchExecutePay({
+              type: MetaType.Restore,
+              payload: INITIAL_EXECUTE_PAY_STATE,
+            });
+            dispatchPayView({
+              type: MetaType.Restore,
+              payload: INITIAL_PAY_VIEW_STATE,
+            });
+            router.back();
+          },
+        },
+      ],
+      []
+    );
     return (
       <DefaultView
         style={{
@@ -65,20 +106,16 @@ export default function ExecutePayModal() {
           justifyContent: "center",
         }}
       >
-        <Button
-          onPress={() => {
-            navigation.goBack();
-          }}
-        >
-          <Text>Cancel</Text>
-        </Button>
-        <Button
-          style={{
-            backgroundColor: colors.buttonSecondary,
-          }}
-        >
-          <Text>Confirm</Text>
-        </Button>
+        {labels.map(({ label, onPress }, key) => (
+          <BetterButton
+            onPress={onPress}
+            type={key == 0 ? "secondary" : "primary"}
+            style={{
+              width: "40%",
+            }}
+            label={label}
+          />
+        ))}
       </DefaultView>
     );
   }

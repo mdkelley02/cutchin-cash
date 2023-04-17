@@ -1,18 +1,17 @@
 import { View } from "react-native";
 import React from "react";
-import { Button, Card, Sizes, Text } from "./Themed";
+import { BetterButton, Card, Sizes, Text, iconProps, useColor } from "./Themed";
 import { formatAmount } from "../models/Utils";
 import { useRouter } from "expo-router";
-import { Events, Routes } from "../constants/Routes";
-import { ExecutePayType } from "../store";
+import { Routes } from "../constants/Routes";
 import { useAppState } from "../hooks/useAppState";
 import { useExecutePay } from "../hooks/useExecutePay";
+import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 
 export default function Balance() {
   const router = useRouter();
   const { authState } = useAppState();
   const { startAddFundsFlow } = useExecutePay();
-
   function BalanceInformation() {
     return (
       <View
@@ -22,7 +21,11 @@ export default function Balance() {
           justifyContent: "space-between",
         }}
       >
-        <View>
+        <View
+          style={{
+            rowGap: Sizes.xxs,
+          }}
+        >
           <Text>Cash Balance</Text>
           <Text type="h1">
             $
@@ -42,20 +45,34 @@ export default function Balance() {
         style={{
           flex: 1,
           flexDirection: "row",
-          gap: Sizes.sm,
+          justifyContent: "space-between",
         }}
       >
-        <Button
+        <BetterButton
           onPress={() => {
-            router.push(Routes.Pay);
+            router.push(Routes.KeyPad);
             startAddFundsFlow();
           }}
-        >
-          <Text type="h6">Add Cash</Text>
-        </Button>
-        <Button onPress={() => router.push(Routes.Pay)}>
-          <Text type="h6">Cash Out</Text>
-        </Button>
+          icon={
+            <MaterialIcons
+              {...iconProps("attach-money", {
+                size: Sizes.xl,
+              })}
+            />
+          }
+          label="Add Cash"
+        />
+        <BetterButton
+          onPress={() => router.push(Routes.KeyPad)}
+          icon={
+            <MaterialCommunityIcons
+              {...iconProps("bank", {
+                size: Sizes.lg,
+              })}
+            />
+          }
+          label="Cash Out"
+        />
       </View>
     );
   }
@@ -64,7 +81,7 @@ export default function Balance() {
     <Card
       style={{
         flex: 1,
-        gap: Sizes.sm,
+        gap: Sizes.lg,
         padding: Sizes.md,
       }}
     >

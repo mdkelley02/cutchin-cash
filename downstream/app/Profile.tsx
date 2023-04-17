@@ -1,16 +1,16 @@
 import React from "react";
 import {
-  Button,
+  BetterButton,
   Card,
   ScreenBase,
   Sizes,
   Text,
   View,
+  iconProps,
   useColor,
 } from "../components/Themed";
 import { View as DefaultView } from "react-native";
 import { Image } from "expo-image";
-import { ExecutePayType, PayEvent } from "../store";
 import { useProfilePicture } from "../hooks/useProfilePicture";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { useNavigation, useRouter } from "expo-router";
@@ -18,41 +18,32 @@ import { Routes } from "../constants/Routes";
 import { useAppState } from "../hooks/useAppState";
 import { useUser } from "../hooks/useUser";
 import { useExecutePay } from "../hooks/useExecutePay";
+import { PAY_BUTTON_CONFIG, REQUEST_BUTTON_CONFIG } from "../constants/Labels";
 
 const MAX_LABEL_LENGTH = 15;
 const PADDING = Sizes.md;
-const PROFILE_CONTROL_EVENTS = [
-  {
-    payEvent: "Request" as PayEvent,
-    icon: "money-check-alt" as ExecutePayType,
-    label: "Request",
-  },
-  {
-    payEvent: "Pay" as PayEvent,
-    icon: "money-bill-wave" as ExecutePayType,
-    label: "Pay",
-  },
-];
+
+export const EVENT_BUTTONS = [PAY_BUTTON_CONFIG, REQUEST_BUTTON_CONFIG];
 
 export default function Profile() {
-  const { profileViewState } = useAppState();
+  const { profileViewState, clearState } = useAppState();
   const { isUserMe, findUser } = useUser();
-  const navigaton = useNavigation();
+  const router = useRouter();
+  const color = useColor();
+  const navigation = useNavigation();
 
   const profileUserId = profileViewState.userId;
   if (profileUserId == null) {
-    navigaton.goBack();
+    router.back();
     return null;
   }
 
   const profileUser = findUser(profileUserId);
   if (profileUser == null) {
-    navigaton.goBack();
+    router.back();
     return null;
   }
 
-  const router = useRouter();
-  const color = useColor();
   const { startRequestPaymentFlow, startSendPaymentFlow } = useExecutePay();
 
   function ProfileCardInformation() {
@@ -101,31 +92,23 @@ export default function Profile() {
       payEvent,
       label,
       icon,
-    }: typeof PROFILE_CONTROL_EVENTS[number] & { key: number }) {
+    }: typeof EVENT_BUTTONS[number] & { key: number }) {
       function startPayFlow() {
         payEvent === "Request"
           ? startRequestPaymentFlow(profileUserId!)
           : startSendPaymentFlow(profileUserId!);
-        router.push(Routes.Pay);
+        router.push(Routes.KeyPad);
       }
 
       return (
-        <Button
+        <BetterButton
           style={{
-            flexDirection: "row",
-            justifyContent: "center",
-            alignItems: "center",
             flexBasis: "48%",
-            padding: PADDING,
-            columnGap: PADDING,
           }}
+          icon={<FontAwesome5 {...iconProps(icon)} />}
           onPress={() => startPayFlow()}
-        >
-          <FontAwesome5 name={icon} size={Sizes.lg} color={color.text} />
-          <Text type="h6" style={{ color: color.text }}>
-            {label}
-          </Text>
-        </Button>
+          label={label}
+        />
       );
     }
 
@@ -137,12 +120,26 @@ export default function Profile() {
           justifyContent: "space-between",
         }}
       >
-        {PROFILE_CONTROL_EVENTS.map((e, key) => (
+        {EVENT_BUTTONS.map((e, key) => (
           <ProfileButton key={key} {...e} />
         ))}
       </DefaultView>
     );
   }
+
+  function Field({ title, value }: { title: string; value: string }) {
+    return (
+      <DefaultView style={{ gap: Sizes.xxs }}>
+        <Text type="h4">{title}</Text>
+        <Text>{value}</Text>
+      </DefaultView>
+    );
+  }
+
+  const personalFields = [
+    { title: "UserId", value: profileUser.userId },
+    { title: "Email", value: profileUser.email },
+  ];
 
   return (
     <View style={ScreenBase}>
@@ -154,6 +151,28 @@ export default function Profile() {
       >
         <ProfileCardInformation />
         {!isUserMe(profileUserId) && <ProfileCardControls />}
+
+        {isUserMe(profileUserId) && (
+          <>
+            {personalFields.map(({ title, value }) => (
+              <Field key={title} title={title} value={value!} />
+            ))}
+            <BetterButton
+              label="Logout"
+              onPress={() => {
+                navigation.reset({
+                  index: 0,
+                  routes: [
+                    {
+                      name: Routes.Login,
+                    } as any,
+                  ],
+                });
+                clearState();
+              }}
+            />
+          </>
+        )}
       </Card>
     </View>
   );

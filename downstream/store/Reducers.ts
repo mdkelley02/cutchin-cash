@@ -2,6 +2,11 @@ import {
   AppDataState,
   AuthState,
   ExecutePayState,
+  INITIAL_APP_DATA_STATE,
+  INITIAL_AUTH_STATE,
+  INITIAL_EXECUTE_PAY_STATE,
+  INITIAL_PAY_VIEW_STATE,
+  INITIAL_PROFILE_VIEW_STATE,
   PayViewState,
   ProfileViewState,
 } from "./State";
@@ -12,6 +17,7 @@ import {
   PayViewType,
   ProfileViewType,
   ExecutePayType,
+  MetaType,
 } from "./Actions";
 
 export function AuthReducer(
@@ -19,10 +25,22 @@ export function AuthReducer(
   action: Action<AuthType>
 ): AuthState {
   switch (action.type) {
+    case MetaType.Purge:
+      return INITIAL_AUTH_STATE;
+    case MetaType.Restore:
+      return action.payload;
     case AuthType.SetToken:
       return { ...state, token: action.payload };
     case AuthType.SetUser:
       return { ...state, user: action.payload };
+    case AuthType.Logout:
+      return { ...state, token: null, user: null };
+    case AuthType.SetAll:
+      return {
+        ...state,
+        token: action.payload.token ?? state.token,
+        user: action.payload.user ?? state.user,
+      };
     default:
       return state;
   }
@@ -33,6 +51,10 @@ export function AppDataReducer(
   action: Action<AppDataType>
 ): AppDataState {
   switch (action.type) {
+    case MetaType.Purge:
+      return INITIAL_APP_DATA_STATE;
+    case MetaType.Restore:
+      return action.payload;
     case AppDataType.SetTransactions:
       return { ...state, transactions: action.payload };
     case AppDataType.DecisionTransaction:
@@ -56,6 +78,10 @@ export function PayViewReducer(
   action: Action<PayViewType>
 ): PayViewState {
   switch (action.type) {
+    case MetaType.Purge:
+      return INITIAL_PAY_VIEW_STATE;
+    case MetaType.Restore:
+      return action.payload;
     case PayViewType.SetFractionAmount:
       return {
         ...state,
@@ -76,8 +102,11 @@ export function ProfileViewReducer(
   action: Action<ProfileViewType>
 ): ProfileViewState {
   switch (action.type) {
+    case MetaType.Purge:
+      return INITIAL_PROFILE_VIEW_STATE;
+    case MetaType.Restore:
+      return action.payload;
     case ProfileViewType.SetProfileUserId:
-      console.log("ProfileViewReducer", action);
       return { ...state, userId: action.payload };
     default:
       return state;
@@ -89,12 +118,15 @@ export function ExecutePayRecuer(
   action: Action<ExecutePayType>
 ): ExecutePayState {
   switch (action.type) {
+    case MetaType.Purge:
+      return INITIAL_EXECUTE_PAY_STATE;
+    case MetaType.Restore:
+      return action.payload;
     case ExecutePayType.SetPayEvent:
       return { ...state, payEvent: action.payload };
     case ExecutePayType.SetPayingUserId:
       return { ...state, payingUserId: action.payload };
     case ExecutePayType.SetReceivingUserId:
-      console.log("ExecutePayRecuer", action);
       return { ...state, receivingUserId: action.payload };
     case ExecutePayType.SetAll:
       return {

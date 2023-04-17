@@ -1,79 +1,66 @@
 import {
   Text as DefaultText,
-  useColorScheme,
   View as DefaultView,
   TouchableOpacity,
   TextInput as DefaultTextInput,
-  Pressable,
-  PressableProps,
   TouchableOpacityProps,
+  TextInputProps,
+  ViewProps,
 } from "react-native";
-import { Link } from "expo-router";
 import { Sizes } from "./Sizes";
 import { ThemeProps, useColor, useThemeColor } from "./Theme";
+import React, { ElementType, ReactElement } from "react";
+import { ButtonWithIcon } from "./Styles";
+import { LinkProps } from "expo-router/build/link/Link";
+import { Link } from "@react-navigation/native";
 
-export type TextProps = ThemeProps &
-  DefaultText["props"] & { type?: TextType; bold?: boolean };
-export type ViewProps = ThemeProps & DefaultView["props"];
+export type TextProps = DefaultText["props"] & {
+  type?: TextType;
+  bold?: boolean;
+};
+
 export type ButtonProps = ThemeProps & TouchableOpacity["props"];
-export type TextInputProps = ThemeProps & DefaultTextInput["props"];
 
 export const TextTypes = ["h1", "h2", "h3", "h4", "h5", "h6", "p"] as const;
 type TextType = typeof TextTypes[number];
 
 export function Text(props: TextProps) {
-  const { style, lightColor, darkColor, bold, ...otherProps } = props;
+  const { style, bold, ...otherProps } = props;
+  const color = useColor();
   const type = props.type ?? "p";
-  const color = useThemeColor({ light: lightColor, dark: darkColor }, "text");
+
   const fontWeight = type !== "p" || bold === true ? "bold" : "normal";
   const fontSize = type === "p" ? 18 : 28 - 2 * TextTypes.indexOf(type);
 
   return (
     <DefaultText
-      style={[{ color, fontSize, fontWeight }, style]}
+      style={[{ color: color.text, fontSize, fontWeight }, style]}
       {...otherProps}
     />
   );
 }
 
 export function View(props: ViewProps) {
-  const { style, lightColor, darkColor, ...otherProps } = props;
-  const backgroundColor = useThemeColor(
-    { light: lightColor, dark: darkColor },
-    "background"
-  );
-
-  return <DefaultView style={[{ backgroundColor }, style]} {...otherProps} />;
-}
-
-export function Card(props: ViewProps) {
-  const { style, lightColor, darkColor, ...otherProps } = props;
-  const backgroundColor = useThemeColor(
-    { light: lightColor, dark: darkColor },
-    "card"
-  );
+  const { style, ...otherProps } = props;
+  const palette = useColor();
 
   return (
     <DefaultView
-      style={[{ backgroundColor, borderRadius: 8, padding: 16 }, style]}
+      style={[{ backgroundColor: palette.background }, style]}
       {...otherProps}
     />
   );
 }
 
-export function TouchableCard(props: TouchableOpacityProps) {
-  const { style, onPress, ...otherProps } = props;
-  const backgroundColor = useColor().card;
+export function Card(props: ViewProps) {
+  const { style, ...otherProps } = props;
+  const palette = useColor();
 
   return (
-    <TouchableOpacity
-      onPress={onPress}
+    <DefaultView
       style={[
-        {
-          backgroundColor,
-          borderRadius: 8,
-          padding: 16,
-        },
+        { backgroundColor: palette.card, borderRadius: 8, padding: 16 },
+        style,
       ]}
       {...otherProps}
     />
@@ -87,72 +74,127 @@ export const BaseButtonStyles = {
   justifyContent: "center",
 } as const;
 
-export function Button(props: ButtonProps) {
-  const { style, lightColor, darkColor, ...otherProps } = props;
-  const backgroundColor = useThemeColor(
-    { light: lightColor, dark: darkColor },
-    "button"
-  );
-  return (
-    <TouchableOpacity
-      style={[
-        {
-          backgroundColor,
-          ...BaseButtonStyles,
-        },
-        style,
-      ]}
-      {...otherProps}
-    />
-  );
-}
-
 export function TextInput(props: TextInputProps) {
-  const { style, lightColor, darkColor, ...otherProps } = props;
-  const backgroundColor = useThemeColor(
-    { light: lightColor, dark: darkColor },
-    "input"
-  );
-  const color = useThemeColor({ light: lightColor, dark: darkColor }, "text");
+  const { style, ...otherProps } = props;
+  const color = useColor();
   return (
     <DefaultTextInput
+      placeholderTextColor={color.inputText}
       style={[
         {
-          backgroundColor,
+          backgroundColor: color.input,
           borderRadius: 8,
           padding: Sizes.sm,
           alignItems: "center",
           justifyContent: "center",
           height: 56,
           fontSize: Sizes.md,
-          color,
+          color: color.inputText,
         },
         style,
       ]}
+      onChangeText={props.onChangeText}
       {...otherProps}
     />
   );
 }
 
-export function Page(props: ViewProps) {
-  const { style, lightColor, darkColor, ...otherProps } = props;
-  const backgroundColor = useThemeColor(
-    { light: lightColor, dark: darkColor },
-    "background"
-  );
+export type BetterButtonProps = {
+  type?: "primary" | "secondary" | "selectable";
+  selected?: boolean;
+  icon?: ReactElement;
+  iconPosition?: "left" | "right";
+  label?: string;
+  onPress?: () => void;
+  disabled?: boolean;
+  style?: ButtonProps["style"];
+} & TouchableOpacityProps;
+
+export function BetterButton(props: BetterButtonProps) {
+  const {
+    type = "primary",
+    selected = false,
+    icon,
+    label,
+    onPress,
+    disabled,
+    style,
+    ...otherProps
+  } = props;
+  const color = useColor();
+
+  function matchBackgroundColor(): string {
+    if (disabled) return color.disabledButton;
+
+    switch (type) {
+      case "primary":
+        return color.button;
+      case "secondary":
+        return color.buttonSecondary;
+      case "selectable":
+        return selected ? color.button : color.card;
+    }
+
+    return color.button;
+  }
+
+  function matchTextColor(): string {
+    if (disabled) return color.disabledButtonText;
+    switch (type) {
+      case "primary":
+        return color.buttonText;
+      case "secondary":
+        return color.buttonTextSecondary;
+      case "selectable":
+        return selected ? color.buttonText : color.text;
+    }
+    return color.buttonText;
+  }
+
+  const backgroundColor = matchBackgroundColor();
+  const textColor = matchTextColor();
+  const iconPosition = props.iconPosition ?? "left";
 
   return (
-    <DefaultView
+    <TouchableOpacity
+      onPress={onPress}
+      disabled={disabled}
       style={[
         {
           backgroundColor,
-          flex: 1,
-          alignItems: "center",
-          justifyContent: "center",
+          ...BaseButtonStyles,
+          ...(icon != null ? ButtonWithIcon : {}),
+          flexDirection: iconPosition === "left" ? "row" : "row-reverse",
         },
         style,
       ]}
       {...otherProps}
-    />
+    >
+      {icon && React.cloneElement(icon, { color: textColor })}
+      {label && (
+        <Text type="h6" style={{ color: textColor }}>
+          {label}
+        </Text>
+      )}
+    </TouchableOpacity>
+  );
+}
+
+export type InputFieldProps = {
+  label: string;
+} & TextInputProps;
+
+export function InputField(props: InputFieldProps) {
+  const { label, ...otherProps } = props;
+
+  return (
+    <DefaultView
+      style={{
+        rowGap: Sizes.xs,
+      }}
+    >
+      <Text type="h4">{props.label}</Text>
+      <TextInput {...otherProps} />
+    </DefaultView>
   );
 }

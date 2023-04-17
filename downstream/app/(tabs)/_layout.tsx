@@ -2,7 +2,7 @@ import { Link, Tabs } from "expo-router";
 import { Pressable } from "react-native";
 import { FontAwesome, FontAwesome5 } from "@expo/vector-icons";
 import { Routes } from "../../constants/Routes";
-import { Sizes, View, useColor } from "../../components/Themed";
+import { Sizes, View, iconProps, useColor } from "../../components/Themed";
 import { ProfileViewType } from "../../store";
 import { useAppState } from "../../hooks/useAppState";
 
@@ -11,11 +11,15 @@ function TabBarIcon(props: {
   color: string;
 }) {
   return (
-    <FontAwesome5 size={Sizes.sm} style={{ marginBottom: -3 }} {...props} />
+    <FontAwesome5
+      style={{ marginBottom: -3 }}
+      {...iconProps(props.name, { size: Sizes.sm })}
+      color={props.color}
+    />
   );
 }
 
-const HEADER_ICONS = [
+const TABS = [
   { href: "/Search", icon: "search" },
   { href: "/Profile", icon: "user-circle" },
 ] as const;
@@ -26,6 +30,7 @@ export default function TabLayout() {
 
   return (
     <Tabs
+      initialRouteName={Routes.Dashboard}
       screenOptions={{
         headerStyle: {
           backgroundColor: color.background,
@@ -48,13 +53,15 @@ export default function TabLayout() {
                 columnGap: Sizes.sm,
               }}
             >
-              {HEADER_ICONS.map(({ href, icon }, key) => (
+              {TABS.map(({ href, icon }, key) => (
                 <Link href={href} asChild key={key}>
                   <Pressable
                     onPress={() => {
+                      if (authState.user == null) return;
+
                       dispatchProfileView({
                         type: ProfileViewType.SetProfileUserId,
-                        payload: authState.user?.userId ?? "",
+                        payload: authState.user.userId,
                       });
                     }}
                   >
@@ -77,7 +84,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name={Routes.Pay}
+        name={Routes.KeyPad}
         options={{
           title: "Pay",
           tabBarIcon: ({ color }) => (

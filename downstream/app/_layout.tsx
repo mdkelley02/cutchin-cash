@@ -9,8 +9,8 @@ import { SplashScreen, Stack } from "expo-router";
 import { useEffect } from "react";
 import { useColorScheme } from "react-native";
 import { AppProvider } from "../store/AppStateContext";
-import Colors from "../constants/Colors";
-import { DefaultScheme } from "../components/Themed";
+import { useColor } from "../components/Themed";
+import { Routes, Segments } from "../constants/Routes";
 export { ErrorBoundary } from "expo-router";
 
 export const unstable_settings = {
@@ -36,17 +36,20 @@ export default function RootLayout() {
 }
 
 function RootLayoutNav() {
-  const colorScheme = useColorScheme();
+  const color = useColor();
 
   return (
-    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+    <ThemeProvider
+      value={useColorScheme() === "dark" ? DarkTheme : DefaultTheme}
+    >
       <AppProvider>
         <Stack
+          initialRouteName={`(auth)/Login`}
           screenOptions={{
             headerStyle: {
-              backgroundColor: Colors[colorScheme ?? DefaultScheme].background,
+              backgroundColor: color.background,
             },
-            headerTintColor: Colors[colorScheme ?? DefaultScheme].text,
+            headerTintColor: color.text,
           }}
         >
           <Stack.Screen
@@ -56,23 +59,42 @@ function RootLayoutNav() {
             }}
           />
           <Stack.Screen
-            name="ExecutePayModal"
+            name={Routes.Login}
+            options={{
+              headerTitle: "Login",
+            }}
+          />
+          <Stack.Screen
+            name={Routes.Register}
+            options={{
+              headerTitle: "Register",
+            }}
+          />
+          <Stack.Screen
+            name={Routes.ExecutePayModal}
             options={{
               headerShown: false,
               presentation: "modal",
             }}
           />
           <Stack.Screen
-            name="Search"
+            name={Routes.Search}
             options={{
               headerShown: false,
               presentation: "modal",
             }}
           />
           <Stack.Screen
-            name="Profile"
+            name={Routes.Profile}
             options={{
               presentation: "card",
+            }}
+          />
+          <Stack.Screen
+            name={Routes.TransactionOptions}
+            options={{
+              presentation: "card",
+              headerTitle: "Transaction Options",
             }}
           />
         </Stack>

@@ -1,6 +1,6 @@
 import { TouchableOpacity, useColorScheme } from "react-native";
 import Colors from "../constants/Colors";
-import { View, Text, Sizes, TouchableCard, DefaultScheme } from "./Themed";
+import { View, Text, Sizes, DefaultScheme, BorderRadius } from "./Themed";
 import React from "react";
 import { View as DefaultView } from "react-native";
 import { formatDate, formatAmount } from "../models/Utils";
@@ -18,9 +18,6 @@ export default function Transactions() {
     timestamp,
     amount,
   }: Transaction) {
-    const receivingUser = [...appDataState.users, authState.user].find(
-      (user) => user?.userId === receivingUserId
-    );
     const payingUser = [...appDataState.users, authState.user].find(
       (user) => user?.userId === payingUserId
     );
@@ -31,9 +28,9 @@ export default function Transactions() {
           flexDirection: "row",
           justifyContent: "space-between",
           alignItems: "center",
-          padding: Sizes.md,
+          padding: Sizes.lg,
           backgroundColor: Colors[colorScheme ?? DefaultScheme].card,
-          borderRadius: 8,
+          borderRadius: BorderRadius.Card,
         }}
       >
         <DefaultView
@@ -63,7 +60,7 @@ export default function Transactions() {
   return (
     <View
       style={{
-        gap: Sizes.sm,
+        gap: Sizes.md,
       }}
     >
       {appDataState.transactions.length === 0 && (

@@ -3,9 +3,9 @@ import { User } from "../models/User.model";
 import { Transaction, TransactionStatus } from "../models/Transaction.model";
 import { AppDataState, AuthState, INITIAL_AUTH_STATE } from "./State";
 
-const token = (): string => faker.datatype.uuid();
+export const token = (): string => faker.datatype.uuid();
 
-const user = (): User => ({
+export const user = (): User => ({
   userId: faker.datatype.uuid(),
   fullName: faker.name.fullName(),
   displayName: faker.internet.userName(),
@@ -16,7 +16,7 @@ const user = (): User => ({
   },
 });
 
-const transaction = (
+export const transaction = (
   receivingUserId: string,
   payingUserId: string
 ): Transaction => ({

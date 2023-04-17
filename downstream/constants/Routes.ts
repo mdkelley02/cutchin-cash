@@ -1,24 +1,19 @@
-export const Events = {
-  Pay: "Pay",
-  Request: "Request",
-  AddFunds: "AddFunds",
-} as const;
-export type Event = keyof typeof Events;
+export const Segments = {
+  Tabs: "(tabs)",
+  Auth: "(auth)",
+};
+
+export type Segment = keyof typeof Segments;
 
 export const Routes = {
   Dashboard: "Dashboard",
-  Pay: "KeyPad",
+  KeyPad: "KeyPad",
   ExecutePayModal: "ExecutePayModal",
   Profile: "Profile",
+  TransactionOptions: "TransactionOptions",
+  Search: "Search",
+  Login: `${Segments.Auth}/Login`,
+  Register: `${Segments.Auth}/Register`,
 } as const;
+
 export type Route = keyof typeof Routes;
-
-export type ExecutePayPayload = {
-  type: typeof Events.Pay | typeof Events.Request | typeof Events.AddFunds;
-  whole: number;
-  fraction: number;
-};
-
-export type PayPayload = {
-  type: typeof Events.AddFunds;
-};

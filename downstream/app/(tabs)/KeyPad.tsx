@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import {
   Text,
   View,
@@ -6,6 +6,10 @@ import {
   Sizes,
   ScreenBase,
   useColor,
+  iconProps,
+  ButtonWithIcon,
+  BetterButton,
+  BorderRadius,
 } from "../../components/Themed";
 import { TouchableOpacity } from "react-native";
 import { Entypo, FontAwesome5 } from "@expo/vector-icons";
@@ -13,7 +17,13 @@ import { useRouter } from "expo-router";
 import { Routes } from "../../constants/Routes";
 import { PayEvent, PayViewType } from "../../store";
 import { useAppState } from "../../hooks/useAppState";
-import { PayEventToLabel } from "../../constants/Labels";
+import {
+  PAY_BUTTON_CONFIG,
+  PayEventToButtonConfig,
+  PayEventToLabel,
+  REQUEST_BUTTON_CONFIG,
+  UNSELECTED_BUTTON_CONFIG,
+} from "../../constants/Labels";
 import { useExecutePay } from "../../hooks/useExecutePay";
 
 type KeyButtonProps = {
@@ -29,39 +39,44 @@ export default function KeyPad() {
   const { getReceivingUser, getPayingUser } = useExecutePay();
   const color = useColor();
 
-  function UserSelector() {
+  function KeyPadHeader() {
     const userToDisplay =
       executePayState.payEvent === "Request"
         ? getPayingUser()
         : getReceivingUser();
 
-    function onPress() {}
+    function UserSelector() {
+      return (
+        <TouchableOpacity
+          style={ButtonWithIcon}
+          onPress={() => router.push(Routes.TransactionOptions)}
+        >
+          {userToDisplay != null && <Text>{userToDisplay?.fullName}</Text>}
+          {userToDisplay == null && <Text>Select User</Text>}
+          <FontAwesome5
+            {...iconProps("chevron-right", {
+              size: Sizes.sm,
+            })}
+            weight=""
+          />
+        </TouchableOpacity>
+      );
+    }
 
-    return (
-      <TouchableOpacity onPress={onPress}>
-        <Text>{userToDisplay?.fullName}</Text>
-      </TouchableOpacity>
-    );
-  }
-
-  function KeyPadHeader() {
     function computedAmount() {
       const { whole, fraction } = payViewState.payAmount;
       return fraction == null ? whole : (whole + fraction / 100).toFixed(2);
     }
-    const userToDisplay =
-      executePayState.payEvent === "Request"
-        ? getPayingUser()
-        : getReceivingUser();
 
     return (
       <View
         style={{
           justifyContent: "center",
           alignItems: "center",
+          rowGap: Sizes.sm,
         }}
       >
-        {userToDisplay != null && <Text>{userToDisplay.fullName}</Text>}
+        <UserSelector />
         <Text
           type="h1"
           style={{
@@ -77,7 +92,7 @@ export default function KeyPad() {
   function KeyPadButtons() {
     const KEY_PAD_BOTTOM_ROW = [
       {
-        label: <Entypo name="dot-single" size={Sizes.xl} color={color.text} />,
+        label: <Entypo {...iconProps("dot-single", { size: Sizes.xxl })} />,
         handler: () =>
           dispatchPayView({
             type: PayViewType.SetFractionAmount,
@@ -91,9 +106,7 @@ export default function KeyPad() {
       {
         label: (
           <FontAwesome5
-            name="backspace"
-            size={Sizes.md}
-            color={color.text}
+            {...iconProps("backspace")}
             style={{ transform: [{ rotate: "180deg" }] }}
           />
         ),
@@ -136,11 +149,12 @@ export default function KeyPad() {
       return (
         <TouchableOpacity
           style={{
-            backgroundColor: color.buttonSecondary,
-            borderRadius: 8,
+            backgroundColor: color.card,
+            borderRadius: BorderRadius.Card,
             padding: 16,
             alignContent: "center",
             justifyContent: "center",
+            height: 60,
             flexBasis: "30%",
           }}
           onPress={handler}
@@ -180,8 +194,28 @@ export default function KeyPad() {
   }
 
   function KeyPadControls() {
-    const events: PayEvent[] =
-      executePayState.payEvent == null ? ["Pay"] : [executePayState.payEvent];
+    const event =
+      executePayState.payEvent == null
+        ? UNSELECTED_BUTTON_CONFIG
+        : PayEventToButtonConfig[executePayState.payEvent];
+
+    function isDisabled() {
+      const invalidAmount =
+        payViewState.payAmount.whole === 0 &&
+        (payViewState.payAmount.fraction == null ||
+          payViewState.payAmount.fraction === 0);
+
+      const invalidSelectedUser =
+        executePayState.receivingUserId == null ||
+        executePayState.payingUserId == null;
+
+      const invalidEventState =
+        executePayState.payEvent == null ||
+        (executePayState.payEvent !== "AddFunds" &&
+          executePayState.receivingUserId === executePayState.payingUserId);
+
+      return invalidAmount || invalidSelectedUser || invalidEventState;
+    }
 
     return (
       <View
@@ -191,19 +225,18 @@ export default function KeyPad() {
           justifyContent: "center",
         }}
       >
-        {events.map((type, key) => (
-          <Button
-            key={key}
-            style={{ width: 120 }}
+        {executePayState.payEvent != null && (
+          <BetterButton
+            disabled={isDisabled()}
             onPress={() => {
               router.push({
                 pathname: Routes.ExecutePayModal,
               });
             }}
-          >
-            <Text type="h5">{PayEventToLabel[type]}</Text>
-          </Button>
-        ))}
+            icon={<FontAwesome5 {...iconProps(event.icon)} />}
+            label={event.label}
+          />
+        )}
       </View>
     );
   }
