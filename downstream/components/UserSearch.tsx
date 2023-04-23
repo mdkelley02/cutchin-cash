@@ -15,16 +15,18 @@ import { User } from "../models/User.model";
 
 export type UserSearchProps = {
   modalTitle: string;
+  selectedUserId?: string;
   onUserSelect: (user: User) => void;
 };
 
 export default function UserSearch({
   modalTitle,
+  selectedUserId,
   onUserSelect,
 }: UserSearchProps) {
   const { appDataState } = useAppState();
   const [search, setSearch] = useState("");
-  const color = useColor();
+  const palette = useColor();
 
   const filteredUsers = useMemo(() => {
     return search.length === 0
@@ -38,60 +40,14 @@ export default function UserSearch({
         });
   }, [search, appDataState.users]);
 
-  function UserSearchInput() {
-    const [tempSearch, setTempSearch] = useState(search);
-
-    return (
-      <View
-        style={{
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "space-between",
-          backgroundColor: color.input,
-          borderRadius: BorderRadius.Input,
-          padding: Sizes.sm,
-          height: 56,
-        }}
-      >
-        <TextInput
-          style={{
-            flex: 1,
-            fontSize: Sizes.md,
-            padding: 0,
-            color: color.text,
-          }}
-          placeholderTextColor={color.inputText}
-          placeholder="Search Users"
-          value={tempSearch}
-          onChangeText={(text) => setTempSearch(text)}
-          onSubmitEditing={() => setSearch(tempSearch)}
-        />
-        <TouchableOpacity
-          onPress={() => {
-            setSearch("");
-            setTempSearch("");
-          }}
-        >
-          <FontAwesome5
-            name="times"
-            size={Sizes.md}
-            style={{
-              display: tempSearch.length === 0 ? "none" : "flex",
-            }}
-            color={tempSearch.length === 0 ? "transparent" : color.inputText}
-          />
-        </TouchableOpacity>
-      </View>
-    );
-  }
-
   function UserSearchItem({ key, user }: { key: number; user: User }) {
     return (
       <TouchableOpacity
         key={key}
         onPress={() => onUserSelect(user)}
         style={{
-          backgroundColor: color.card,
+          backgroundColor:
+            selectedUserId === user.userId ? palette.button : palette.card,
           borderRadius: BorderRadius.Card,
           padding: Sizes.sm,
         }}
@@ -101,31 +57,44 @@ export default function UserSearch({
             rowGap: Sizes.xxs,
           }}
         >
-          {[user.fullName, user.displayName].map((name, key) => (
+          <Text
+            type="h5"
+            style={{
+              color:
+                selectedUserId === user.userId
+                  ? palette.buttonText
+                  : palette.text,
+            }}
+          >
+            {user.fullName}
+          </Text>
+          <Text
+            type="p"
+            style={{
+              color:
+                selectedUserId === user.userId
+                  ? palette.buttonText
+                  : palette.subText,
+            }}
+          >
+            @{user.displayName}
+          </Text>
+          {/* {[user.fullName, user.displayName].map((name, key) => (
             <Text
               bold={name === user.displayName}
               type={key === 0 ? "h5" : "p"}
               key={key}
               style={{
-                color: name === user.displayName ? color.subText : color.text,
+                color:
+                  name === user.displayName ? palette.subText : palette.text,
               }}
             >
               {name === user.displayName ? "@" : ""}
               {name}
             </Text>
-          ))}
+          ))} */}
         </DefaultView>
       </TouchableOpacity>
-    );
-  }
-
-  function UserScrollContainer() {
-    return (
-      <ScrollView contentContainerStyle={{ flexGrow: 1, rowGap: Sizes.lg }}>
-        {filteredUsers.map((user, key) => (
-          <UserSearchItem key={key} user={user} />
-        ))}
-      </ScrollView>
     );
   }
 
@@ -136,8 +105,30 @@ export default function UserSearch({
       }}
     >
       <Text type="h3">{modalTitle}</Text>
-      <UserSearchInput />
-      <UserScrollContainer />
+      <TextInput
+        placeholder="Search Users"
+        value={search}
+        onChangeText={(text) => setSearch(text)}
+        iconPosition="right"
+        icon={
+          <FontAwesome5
+            onPress={() => {
+              setSearch("");
+            }}
+            name="times"
+            size={Sizes.md}
+            style={{
+              display: search.length === 0 ? "none" : "flex",
+            }}
+            color={search.length === 0 ? "transparent" : palette.inputText}
+          />
+        }
+      />
+      <ScrollView contentContainerStyle={{ flexGrow: 1, rowGap: Sizes.lg }}>
+        {filteredUsers.map((user, key) => (
+          <UserSearchItem key={key} user={user} />
+        ))}
+      </ScrollView>
     </View>
   );
 }

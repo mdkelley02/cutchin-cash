@@ -24,9 +24,8 @@ export const transaction = (
   receivingUserId,
   payingUserId,
   description: faker.lorem.sentence(),
-  status: faker.datatype.boolean()
-    ? TransactionStatus.ACCEPTED
-    : TransactionStatus.REJECTED,
+  status:
+    Object.values(TransactionStatus)[faker.datatype.number({ min: 0, max: 2 })],
   amount: {
     whole: faker.datatype.number({ min: 0, max: 1000 }),
     fraction: faker.datatype.number({ min: 0, max: 99 }),

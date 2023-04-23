@@ -1,5 +1,10 @@
 import { User } from "../models/User.model";
-import { ExecutePayType, PayEvent } from "../store";
+import {
+  ExecutePayActionType,
+  ExecutePayState,
+  MetaActionType,
+  PayEvent,
+} from "../store";
 import { useAppState } from "./useAppState";
 import { Nullable, useUser } from "./useUser";
 
@@ -9,12 +14,12 @@ function makeDispatch(
   receivingUserId: Nullable<string>
 ) {
   return {
-    type: ExecutePayType.SetAll,
+    type: MetaActionType.Restore,
     payload: {
       payEvent,
       payingUserId,
       receivingUserId,
-    },
+    } as ExecutePayState,
   };
 }
 

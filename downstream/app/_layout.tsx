@@ -97,6 +97,13 @@ function RootLayoutNav() {
               headerTitle: "Transaction Options",
             }}
           />
+          <Stack.Screen
+            name="TransactionDetail"
+            options={{
+              presentation: "card",
+              headerTitle: "Transaction Detail",
+            }}
+          />
         </Stack>
       </AppProvider>
     </ThemeProvider>

@@ -1,4 +1,11 @@
-import { BetterButton, Text, View, useColor } from "../components/Themed";
+import {
+  BetterButton,
+  Field,
+  Text,
+  TextInput,
+  View,
+  useColor,
+} from "../components/Themed";
 import { ModalBase, Sizes } from "../components/Themed";
 import { useNavigation, useRouter } from "expo-router";
 import { formatAmount } from "../models/Utils";
@@ -7,24 +14,16 @@ import { useAppState } from "../hooks/useAppState";
 import { PayEventToLabel } from "../constants/Labels";
 import { useExecutePay } from "../hooks/useExecutePay";
 import {
-  ExecutePayType,
+  ExecutePayActionType,
   INITIAL_EXECUTE_PAY_STATE,
   INITIAL_PAY_VIEW_STATE,
-  MetaType,
+  MetaActionType,
 } from "../store";
 import { useMemo } from "react";
 
-function Field(key: number, title: string, value: string) {
-  return (
-    <DefaultView style={{ rowGap: Sizes.xxs }} key={key}>
-      <Text type="h4">{title}</Text>
-      <Text>{value}</Text>
-    </DefaultView>
-  );
-}
-
 export default function ExecutePayModal() {
   const router = useRouter();
+  const palette = useColor();
   const { payViewState, dispatchExecutePay, dispatchPayView } = useAppState();
   const { executePayState, getPayingUser, getReceivingUser } = useExecutePay();
   if (Object.values(executePayState).some((s) => s == null)) {
@@ -32,6 +31,10 @@ export default function ExecutePayModal() {
   }
   const payingUser = getPayingUser();
   const receivingUser = getReceivingUser();
+  if (payingUser == null || receivingUser == null) {
+    router.back();
+    return null;
+  }
 
   function TransactionInformation() {
     const FIELDS = [
@@ -58,7 +61,14 @@ export default function ExecutePayModal() {
           <Text type="h2">
             Confirm {PayEventToLabel[executePayState.payEvent!]}
           </Text>
-          {FIELDS.map((f, key) => Field(key, f.title, f.value))}
+          {FIELDS.map((f, key) => (
+            <Field key={key} {...f} />
+          ))}
+          <Text type="h6">Description</Text>
+          <TextInput
+            placeholder="Enter a description for this transaction."
+            multiline
+          />
         </DefaultView>
       </DefaultView>
     );
@@ -71,11 +81,11 @@ export default function ExecutePayModal() {
           label: "Cancel",
           onPress: () => {
             dispatchExecutePay({
-              type: MetaType.Restore,
+              type: MetaActionType.Restore,
               payload: INITIAL_EXECUTE_PAY_STATE,
             });
             dispatchPayView({
-              type: MetaType.Restore,
+              type: MetaActionType.Restore,
               payload: INITIAL_PAY_VIEW_STATE,
             });
             router.back();
@@ -85,11 +95,11 @@ export default function ExecutePayModal() {
           label: PayEventToLabel[executePayState.payEvent!],
           onPress: () => {
             dispatchExecutePay({
-              type: MetaType.Restore,
+              type: MetaActionType.Restore,
               payload: INITIAL_EXECUTE_PAY_STATE,
             });
             dispatchPayView({
-              type: MetaType.Restore,
+              type: MetaActionType.Restore,
               payload: INITIAL_PAY_VIEW_STATE,
             });
             router.back();
@@ -108,6 +118,7 @@ export default function ExecutePayModal() {
       >
         {labels.map(({ label, onPress }, key) => (
           <BetterButton
+            key={key}
             onPress={onPress}
             type={key == 0 ? "secondary" : "primary"}
             style={{

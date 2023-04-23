@@ -13,6 +13,8 @@ export type Palette = {
   disabledButton: string;
   disabledButtonText: string;
   link: string;
+  error: string;
+  errorText: string;
 };
 
 const dark: Palette = {
@@ -30,6 +32,8 @@ const dark: Palette = {
   disabledButton: "#2A2E39",
   disabledButtonText: "#6D7485",
   link: "#0176C3",
+  error: "#FF0000",
+  errorText: "#FFFFFF",
 };
 
 const light: Palette = {
@@ -47,6 +51,8 @@ const light: Palette = {
   disabledButton: "#D0D9E8",
   disabledButtonText: "#A4AAB9",
   link: "#121723",
+  error: "#E4665C",
+  errorText: "#FFFFFF",
 };
 
 export default {

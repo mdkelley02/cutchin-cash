@@ -1,35 +1,38 @@
 import { TouchableOpacity, useColorScheme } from "react-native";
-import Colors from "../constants/Colors";
-import { View, Text, Sizes, DefaultScheme, BorderRadius } from "./Themed";
+import { View, Text, Sizes, BorderRadius, useColor } from "./Themed";
 import React from "react";
 import { View as DefaultView } from "react-native";
 import { formatDate, formatAmount } from "../models/Utils";
 import { Transaction } from "../models/Transaction.model";
 import { useAppState } from "../hooks/useAppState";
+import { useRouter } from "expo-router";
+import { useUser } from "../hooks/useUser";
 
 export default function Transactions() {
-  const colorScheme = useColorScheme();
-  const { appDataState, authState } = useAppState();
+  const { appDataState } = useAppState();
+  const router = useRouter();
+  const { isUserMe, findUser } = useUser();
+  const palette = useColor();
 
   function TransactionItem({
     transactionId,
-    receivingUserId,
     payingUserId,
     timestamp,
     amount,
   }: Transaction) {
-    const payingUser = [...appDataState.users, authState.user].find(
-      (user) => user?.userId === payingUserId
-    );
+    const payingUser = findUser(payingUserId);
     return (
       <TouchableOpacity
         key={transactionId}
+        onPress={() => {
+          router.push(`TransactionDetail?transactionId=${transactionId}`);
+        }}
         style={{
           flexDirection: "row",
           justifyContent: "space-between",
           alignItems: "center",
           padding: Sizes.lg,
-          backgroundColor: Colors[colorScheme ?? DefaultScheme].card,
+          backgroundColor: palette.card,
           borderRadius: BorderRadius.Card,
         }}
       >
@@ -38,11 +41,11 @@ export default function Transactions() {
             gap: Sizes.xxs,
           }}
         >
-          <Text type="h5">{payingUser?.displayName}</Text>
+          <Text type="h5">{payingUser?.fullName?.substring(0, 15)}</Text>
           <Text
             bold={true}
             style={{
-              color: Colors[colorScheme ?? DefaultScheme].subText,
+              color: palette.subText,
             }}
           >
             {formatDate(timestamp)}
@@ -50,11 +53,16 @@ export default function Transactions() {
         </DefaultView>
         <DefaultView>
           <Text bold={true}>
-            ${formatAmount(amount.whole, amount.fraction)}
+            {isUserMe(payingUserId) ? "-" : "+"}$
+            {formatAmount(amount.whole, amount.fraction)}
           </Text>
         </DefaultView>
       </TouchableOpacity>
     );
+  }
+
+  if (appDataState.transactions.length === 0) {
+    return <Text>No transactions yet</Text>;
   }
 
   return (
@@ -63,13 +71,9 @@ export default function Transactions() {
         gap: Sizes.md,
       }}
     >
-      {appDataState.transactions.length === 0 && (
-        <Text>No transactions yet</Text>
-      )}
-      {appDataState.transactions.length > 0 &&
-        appDataState.transactions.map((transaction, key) => (
-          <TransactionItem key={key} {...transaction} />
-        ))}
+      {appDataState.transactions.map((transaction, key) => (
+        <TransactionItem key={key} {...transaction} />
+      ))}
     </View>
   );
 }

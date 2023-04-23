@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import {
   BetterButton,
+  ErrorCard,
   ScreenBase,
   Text,
   View,
@@ -9,7 +10,7 @@ import {
 import Form, { FormField } from "../../components/Form";
 import { LOGIN_FIELDS } from "../../constants/Labels";
 import { useAppState } from "../../hooks/useAppState";
-import { AuthType, MetaType } from "../../store";
+import { AuthActionType, MetaActionType } from "../../store";
 import * as FakeState from "../../store/FakeState";
 import { Routes } from "../../constants/Routes";
 import { Link, useNavigation, useRouter } from "expo-router";
@@ -22,20 +23,32 @@ export default function Login() {
   const palette = useColor();
 
   function handleSubmit() {
+    if (formFields.length < 2) {
+      setError("Please fill out all fields");
+      return;
+    }
+
     const { FAKE_AUTH, FAKE_APP_DATA } = FakeState.FakeState();
     dispatchAppData({
-      type: MetaType.Restore,
+      type: MetaActionType.Restore,
       payload: FAKE_APP_DATA,
     });
     dispatchAuth({
-      type: MetaType.Restore,
+      type: MetaActionType.Restore,
       payload: FAKE_AUTH,
     });
   }
 
   return (
     <View style={ScreenBase}>
-      {error != null && <Text>{error}</Text>}
+      <View
+        style={{
+          height: "10%",
+          justifyContent: "center",
+        }}
+      >
+        {error != null && <ErrorCard message={error} />}
+      </View>
       <Form
         inputProps={FIELDS}
         handleChange={(text: string, index: number) => {

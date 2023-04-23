@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import {
   BetterButton,
+  ErrorCard,
   ScreenBase,
   Text,
   View,
@@ -12,7 +13,7 @@ import { Routes } from "../../constants/Routes";
 import { Link } from "expo-router";
 import { FakeState } from "../../store/FakeState";
 import { useAppState } from "../../hooks/useAppState";
-import { MetaType } from "../../store";
+import { MetaActionType } from "../../store";
 
 export default function Register() {
   const FIELDS = REGISTER_FIELDS;
@@ -20,21 +21,33 @@ export default function Register() {
   const [formFields, setFormFields] = useState<FormField[]>([]);
   const palette = useColor();
   const { dispatchAppData, dispatchAuth } = useAppState();
+
   function handleSubmit() {
+    if (formFields.length < 2) {
+      setError("Please fill out all fields");
+      return;
+    }
     const { FAKE_AUTH, FAKE_APP_DATA } = FakeState();
     dispatchAppData({
-      type: MetaType.Restore,
+      type: MetaActionType.Restore,
       payload: FAKE_APP_DATA,
     });
     dispatchAuth({
-      type: MetaType.Restore,
+      type: MetaActionType.Restore,
       payload: FAKE_AUTH,
     });
   }
 
   return (
     <View style={ScreenBase}>
-      {error != null && <Text>{error}</Text>}
+      <View
+        style={{
+          height: "8%",
+          justifyContent: "center",
+        }}
+      >
+        {error != null && <ErrorCard message={error} />}
+      </View>
       <Form
         inputProps={FIELDS}
         handleChange={(text: string, index: number) => {

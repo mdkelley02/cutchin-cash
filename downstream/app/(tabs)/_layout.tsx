@@ -3,7 +3,7 @@ import { Pressable } from "react-native";
 import { FontAwesome, FontAwesome5 } from "@expo/vector-icons";
 import { Routes } from "../../constants/Routes";
 import { Sizes, View, iconProps, useColor } from "../../components/Themed";
-import { ProfileViewType } from "../../store";
+import { ProfileViewActionType } from "../../store";
 import { useAppState } from "../../hooks/useAppState";
 
 function TabBarIcon(props: {
@@ -27,7 +27,7 @@ const TABS = [
 export default function TabLayout() {
   const color = useColor();
   const { dispatchProfileView, authState } = useAppState();
-
+  if (authState.user == null) return null;
   return (
     <Tabs
       initialRouteName={Routes.Dashboard}
@@ -57,11 +57,9 @@ export default function TabLayout() {
                 <Link href={href} asChild key={key}>
                   <Pressable
                     onPress={() => {
-                      if (authState.user == null) return;
-
                       dispatchProfileView({
-                        type: ProfileViewType.SetProfileUserId,
-                        payload: authState.user.userId,
+                        type: ProfileViewActionType.SetProfileUserId,
+                        payload: authState?.user?.userId,
                       });
                     }}
                   >

@@ -8,7 +8,7 @@ import {
   BetterButton,
 } from "../components/Themed";
 import { View as DefaultView } from "react-native";
-import { ExecutePayType } from "../store";
+import { ExecutePayActionType } from "../store";
 import { PAY_BUTTON_CONFIG, REQUEST_BUTTON_CONFIG } from "../constants/Labels";
 import UserSearch from "../components/UserSearch";
 import { useAppState } from "../hooks/useAppState";
@@ -24,14 +24,9 @@ export default function UserSelect() {
     useExecutePay();
 
   function onUserSelect(user: User) {
-    switch (executePayState.payEvent) {
-      case "Request":
-        startRequestPaymentFlow(user.userId);
-        break;
-      case "Pay":
-        startSendPaymentFlow(user.userId);
-        break;
-    }
+    executePayState.payEvent === "Request"
+      ? startRequestPaymentFlow(user.userId)
+      : startSendPaymentFlow(user.userId);
     router.back();
   }
 
@@ -58,7 +53,7 @@ export default function UserSelect() {
                 selected={executePayState.payEvent === payEvent}
                 onPress={() =>
                   dispatchExecutePay({
-                    type: ExecutePayType.SetPayEvent,
+                    type: ExecutePayActionType.SetPayEvent,
                     payload: payEvent,
                   })
                 }
@@ -74,7 +69,15 @@ export default function UserSelect() {
       </DefaultView>
       {executePayState.payEvent !== "AddFunds" && (
         <DefaultView>
-          <UserSearch modalTitle="Select a User" onUserSelect={onUserSelect} />
+          <UserSearch
+            modalTitle="Select a User"
+            onUserSelect={onUserSelect}
+            selectedUserId={
+              executePayState.payEvent === "Request"
+                ? executePayState.payingUserId ?? undefined
+                : executePayState.receivingUserId ?? undefined
+            }
+          />
         </DefaultView>
       )}
     </View>

@@ -1,5 +1,5 @@
 import React from "react";
-import { ProfileViewType } from "../store";
+import { ProfileViewActionType } from "../store";
 import { Routes } from "../constants/Routes";
 import { useNavigation, useRouter } from "expo-router";
 import { useAppState } from "../hooks/useAppState";
@@ -15,7 +15,7 @@ export default function Search() {
     router.replace(Routes.Profile);
 
     dispatchProfileView({
-      type: ProfileViewType.SetProfileUserId,
+      type: ProfileViewActionType.SetProfileUserId,
       payload: user.userId,
     });
   }

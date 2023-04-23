@@ -4,15 +4,16 @@ import {
   TouchableOpacity,
   TextInput as DefaultTextInput,
   TouchableOpacityProps,
-  TextInputProps,
+  TextInputProps as DefaultTextInputProps,
   ViewProps,
 } from "react-native";
 import { Sizes } from "./Sizes";
 import { ThemeProps, useColor, useThemeColor } from "./Theme";
 import React, { ElementType, ReactElement } from "react";
-import { ButtonWithIcon } from "./Styles";
+import { ButtonWithIcon, iconProps } from "./Styles";
 import { LinkProps } from "expo-router/build/link/Link";
 import { Link } from "@react-navigation/native";
+import { FontAwesome5 } from "@expo/vector-icons";
 
 export type TextProps = DefaultText["props"] & {
   type?: TextType;
@@ -74,28 +75,49 @@ export const BaseButtonStyles = {
   justifyContent: "center",
 } as const;
 
+export type TextInputProps = {
+  icon?: ReactElement;
+  iconPosition?: "left" | "right";
+  containerStyle?: ViewProps["style"];
+} & DefaultTextInputProps;
+
 export function TextInput(props: TextInputProps) {
-  const { style, ...otherProps } = props;
+  const { containerStyle, style, icon, iconPosition, ...otherProps } = props;
   const color = useColor();
+  const flexDirection =
+    icon == null ? "row" : iconPosition === "right" ? "row" : "row-reverse";
   return (
-    <DefaultTextInput
-      placeholderTextColor={color.inputText}
+    <DefaultView
       style={[
         {
+          flexDirection,
+          alignItems: props.multiline ? "flex-start" : "center",
+          justifyContent: "space-between",
           backgroundColor: color.input,
           borderRadius: 8,
           padding: Sizes.sm,
-          alignItems: "center",
-          justifyContent: "center",
-          height: 56,
-          fontSize: Sizes.md,
-          color: color.inputText,
+          height: props.multiline ? 112 : 56,
         },
-        style,
+        containerStyle,
       ]}
-      onChangeText={props.onChangeText}
-      {...otherProps}
-    />
+    >
+      <DefaultTextInput
+        placeholderTextColor={color.inputText}
+        style={[
+          {
+            backgroundColor: color.input,
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: Sizes.md,
+            color: color.inputText,
+          },
+          style,
+        ]}
+        onChangeText={props.onChangeText}
+        {...otherProps}
+      />
+      {icon && React.cloneElement(icon, { color: color.inputText })}
+    </DefaultView>
   );
 }
 
@@ -124,7 +146,7 @@ export function BetterButton(props: BetterButtonProps) {
   const color = useColor();
 
   function matchBackgroundColor(): string {
-    if (disabled) return color.disabledButton;
+    if (disabled && type !== "selectable") return color.disabledButton;
 
     switch (type) {
       case "primary":
@@ -139,7 +161,8 @@ export function BetterButton(props: BetterButtonProps) {
   }
 
   function matchTextColor(): string {
-    if (disabled) return color.disabledButtonText;
+    if (disabled && type !== "selectable") return color.disabledButtonText;
+
     switch (type) {
       case "primary":
         return color.buttonText;
@@ -182,7 +205,7 @@ export function BetterButton(props: BetterButtonProps) {
 
 export type InputFieldProps = {
   label: string;
-} & TextInputProps;
+} & DefaultTextInputProps;
 
 export function InputField(props: InputFieldProps) {
   const { label, ...otherProps } = props;
@@ -196,5 +219,79 @@ export function InputField(props: InputFieldProps) {
       <Text type="h4">{props.label}</Text>
       <TextInput {...otherProps} />
     </DefaultView>
+  );
+}
+
+export type ErrorCardProps = {
+  message: string;
+} & ViewProps;
+
+export function ErrorCard(props: ErrorCardProps) {
+  const { message, style, ...otherProps } = props;
+  const palette = useColor();
+
+  return (
+    <View
+      style={[
+        {
+          backgroundColor: palette.error,
+          padding: Sizes.sm,
+          borderRadius: 8,
+          flexDirection: "row",
+          alignItems: "center",
+          gap: Sizes.lg,
+        },
+        style,
+      ]}
+      {...otherProps}
+    >
+      <FontAwesome5
+        {...iconProps("exclamation-triangle", {
+          color: "errorText",
+        })}
+      />
+      <Text type="h6" style={{ color: palette.errorText }}>
+        {message}
+      </Text>
+    </View>
+  );
+}
+
+export type FieldProps = {
+  title: string;
+  titleProps?: TextProps;
+  value: string;
+  valueProps?: TextProps;
+} & ViewProps;
+
+export function Field(props: FieldProps) {
+  const { title, titleProps, value, valueProps, style, ...otherProps } = props;
+  const palette = useColor();
+
+  return (
+    <View
+      style={[
+        {
+          gap: 8,
+        },
+        style,
+      ]}
+      {...otherProps}
+    >
+      <Text type="h5" {...titleProps}>
+        {title}
+      </Text>
+      <Text
+        style={[
+          {
+            color: palette.subText,
+          },
+          valueProps?.style,
+        ]}
+        {...valueProps}
+      >
+        {value}
+      </Text>
+    </View>
   );
 }

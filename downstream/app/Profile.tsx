@@ -154,8 +154,8 @@ export default function Profile() {
 
         {isUserMe(profileUserId) && (
           <>
-            {personalFields.map(({ title, value }) => (
-              <Field key={title} title={title} value={value!} />
+            {personalFields.map(({ title, value }, key) => (
+              <Field key={key} title={title} value={value!} />
             ))}
             <BetterButton
               label="Logout"

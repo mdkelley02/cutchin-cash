@@ -2,7 +2,6 @@ import React from "react";
 import {
   Text,
   View,
-  Button,
   Sizes,
   ScreenBase,
   useColor,
@@ -15,13 +14,10 @@ import { TouchableOpacity } from "react-native";
 import { Entypo, FontAwesome5 } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { Routes } from "../../constants/Routes";
-import { PayEvent, PayViewType } from "../../store";
+import { PayViewActionType } from "../../store";
 import { useAppState } from "../../hooks/useAppState";
 import {
-  PAY_BUTTON_CONFIG,
   PayEventToButtonConfig,
-  PayEventToLabel,
-  REQUEST_BUTTON_CONFIG,
   UNSELECTED_BUTTON_CONFIG,
 } from "../../constants/Labels";
 import { useExecutePay } from "../../hooks/useExecutePay";
@@ -95,7 +91,7 @@ export default function KeyPad() {
         label: <Entypo {...iconProps("dot-single", { size: Sizes.xxl })} />,
         handler: () =>
           dispatchPayView({
-            type: PayViewType.SetFractionAmount,
+            type: PayViewActionType.SetFractionAmount,
             payload: 0,
           }),
       },
@@ -119,12 +115,12 @@ export default function KeyPad() {
       if (fraction != null) {
         if (fraction > 9) return;
         dispatchPayView({
-          type: PayViewType.SetFractionAmount,
+          type: PayViewActionType.SetFractionAmount,
           payload: fraction * 10 + digit,
         });
       } else {
         dispatchPayView({
-          type: PayViewType.SetWholeAmount,
+          type: PayViewActionType.SetWholeAmount,
           payload: whole * 10 + digit,
         });
       }
@@ -134,12 +130,12 @@ export default function KeyPad() {
       const { whole, fraction } = payViewState.payAmount;
       if (fraction != null) {
         dispatchPayView({
-          type: PayViewType.SetFractionAmount,
+          type: PayViewActionType.SetFractionAmount,
           payload: fraction > 0 ? Math.floor(fraction / 10) : null,
         });
       } else if (whole > 0) {
         dispatchPayView({
-          type: PayViewType.SetWholeAmount,
+          type: PayViewActionType.SetWholeAmount,
           payload: Math.floor(whole / 10),
         });
       }

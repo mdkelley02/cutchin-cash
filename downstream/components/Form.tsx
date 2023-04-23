@@ -15,11 +15,11 @@ export type FormProps = {
 export default function Form(props: FormProps) {
   return (
     <>
-      {props.inputProps.map((inputProps, index) => (
+      {props.inputProps.map((inputProps, key) => (
         <InputField
-          key={index}
+          key={key}
           {...inputProps}
-          onChangeText={(text) => props.handleChange(text, index)}
+          onChangeText={(text) => props.handleChange(text, key)}
         />
       ))}
     </>

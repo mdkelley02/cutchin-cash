@@ -21,7 +21,7 @@ import {
 } from "./Reducers";
 import { useRootNavigation, useRouter, useSegments } from "expo-router";
 import { Routes, Segments } from "../constants/Routes";
-import { MetaType } from "./Actions";
+import { MetaActionType } from "./Actions";
 
 interface AppStateContextProps {
   authState: AuthState;
@@ -56,14 +56,14 @@ const { FAKE_AUTH, FAKE_APP_DATA } = FakeState();
 export function AppProvider({ children }: any) {
   const router = useRouter();
   const segments = useSegments();
-  const [authState, dispatchAuth] = useReducer(AuthReducer, INITIAL_AUTH_STATE);
+  const [authState, dispatchAuth] = useReducer(AuthReducer, FAKE_AUTH);
   const [payViewState, dispatchPayView] = useReducer(
     PayViewReducer,
     INITIAL_PAY_VIEW_STATE
   );
   const [appDataState, dispatchAppData] = useReducer(
     AppDataReducer,
-    INITIAL_APP_DATA_STATE
+    FAKE_APP_DATA
   );
   const [profileViewState, dispatchProfileView] = useReducer(
     ProfileViewReducer,
@@ -75,11 +75,11 @@ export function AppProvider({ children }: any) {
   );
 
   function clearState() {
-    dispatchAuth({ type: MetaType.Purge });
-    dispatchPayView({ type: MetaType.Purge });
-    dispatchAppData({ type: MetaType.Purge });
-    dispatchProfileView({ type: MetaType.Purge });
-    dispatchExecutePay({ type: MetaType.Purge });
+    dispatchAuth({ type: MetaActionType.Purge });
+    dispatchPayView({ type: MetaActionType.Purge });
+    dispatchAppData({ type: MetaActionType.Purge });
+    dispatchProfileView({ type: MetaActionType.Purge });
+    dispatchExecutePay({ type: MetaActionType.Purge });
   }
 
   const user = authState?.user;
