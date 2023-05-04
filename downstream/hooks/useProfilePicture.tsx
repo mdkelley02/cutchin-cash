@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useAppState } from "./useAppState";
 
 const API_URL = (seed: String) =>
@@ -13,9 +13,7 @@ function hashProfile(s: string): String {
 }
 
 export function useProfilePicture() {
-  const [profilePicture, setProfilePicture] = React.useState<string | null>(
-    null
-  );
+  const [profilePicture, setProfilePicture] = useState<string | null>(null);
   const { profileViewState } = useAppState();
   const { userId } = profileViewState;
 

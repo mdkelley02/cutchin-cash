@@ -27,7 +27,7 @@ type KeyButtonProps = {
   handler: () => void;
 };
 
-const KEY_PADS = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+const KEYS = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 export default function KeyPad() {
   const router = useRouter();
@@ -175,7 +175,7 @@ export default function KeyPad() {
           gap: Sizes.sm,
         }}
       >
-        {KEY_PADS.map((number, key) => (
+        {KEYS.map((number, key) => (
           <KeyButton
             key={key}
             label={number.toString()}

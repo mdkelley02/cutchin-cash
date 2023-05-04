@@ -7,14 +7,13 @@ import {
   useColor,
 } from "../components/Themed";
 import { ModalBase, Sizes } from "../components/Themed";
-import { useNavigation, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { formatAmount } from "../models/Utils";
 import { View as DefaultView } from "react-native";
 import { useAppState } from "../hooks/useAppState";
 import { PayEventToLabel } from "../constants/Labels";
 import { useExecutePay } from "../hooks/useExecutePay";
 import {
-  ExecutePayActionType,
   INITIAL_EXECUTE_PAY_STATE,
   INITIAL_PAY_VIEW_STATE,
   MetaActionType,
@@ -23,7 +22,6 @@ import { useMemo } from "react";
 
 export default function ExecutePayModal() {
   const router = useRouter();
-  const palette = useColor();
   const { payViewState, dispatchExecutePay, dispatchPayView } = useAppState();
   const { executePayState, getPayingUser, getReceivingUser } = useExecutePay();
   if (Object.values(executePayState).some((s) => s == null)) {

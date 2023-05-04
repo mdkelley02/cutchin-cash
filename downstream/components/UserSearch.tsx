@@ -19,6 +19,11 @@ export type UserSearchProps = {
   onUserSelect: (user: User) => void;
 };
 
+export type UserSearchItemProps = {
+  key: number;
+  user: User;
+};
+
 export default function UserSearch({
   modalTitle,
   selectedUserId,
@@ -40,7 +45,7 @@ export default function UserSearch({
         });
   }, [search, appDataState.users]);
 
-  function UserSearchItem({ key, user }: { key: number; user: User }) {
+  function UserSearchItem({ key, user }: UserSearchItemProps) {
     return (
       <TouchableOpacity
         key={key}
@@ -79,20 +84,6 @@ export default function UserSearch({
           >
             @{user.displayName}
           </Text>
-          {/* {[user.fullName, user.displayName].map((name, key) => (
-            <Text
-              bold={name === user.displayName}
-              type={key === 0 ? "h5" : "p"}
-              key={key}
-              style={{
-                color:
-                  name === user.displayName ? palette.subText : palette.text,
-              }}
-            >
-              {name === user.displayName ? "@" : ""}
-              {name}
-            </Text>
-          ))} */}
         </DefaultView>
       </TouchableOpacity>
     );
