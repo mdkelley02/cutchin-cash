@@ -12,3 +12,6 @@
 * userIds -> Set of userIds
 
 https://cdn.dribbble.com/userupload/6073936/file/original-a06fcadf16954921ab0006bb136244dc.jpg?compress=1&resize=1600x1200
+
+
+Run current downstream with npm run ios 
